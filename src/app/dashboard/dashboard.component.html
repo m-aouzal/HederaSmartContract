@@ -1,0 +1,53 @@
+<div class="dashboard-container">
+  <h2>Dashboard</h2>
+  <button (click)="logout()">Logout</button>
+
+  <section class="balances">
+    <h3>Token Balances</h3>
+    <p>MPT Balance: {{ mptBalance }}</p>
+    <p>MST Balance: {{ mstBalance }}</p>
+  </section>
+
+  <section class="send-tokens">
+    <h3>Send Tokens</h3>
+    <form (ngSubmit)="sendTransaction()">
+      <div class="form-group">
+        <label for="recipientAccountId">Recipient Account ID</label>
+        <input type="text" id="recipientAccountId" [(ngModel)]="recipientAccountId" name="recipientAccountId" required>
+      </div>
+      <div class="form-group">
+        <label for="transactionAmount">Amount</label>
+        <input type="number" id="transactionAmount" [(ngModel)]="transactionAmount" name="transactionAmount" required>
+      </div>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <section class="stake-tokens">
+    <h3>Stake Tokens</h3>
+    <form (ngSubmit)="stakeTokens()">
+      <div class="form-group">
+        <label for="stakeAmount">Amount</label>
+        <input type="number" id="stakeAmount" [(ngModel)]="stakeAmount" name="stakeAmount" required>
+      </div>
+      <button type="submit">Stake</button>
+    </form>
+  </section>
+
+  <section class="unstake-tokens">
+    <h3>Unstake Tokens</h3>
+    <form (ngSubmit)="unstakeTokens()">
+      <div class="form-group">
+        <label for="unstakeAmount">Amount</label>
+        <input type="number" id="unstakeAmount" [(ngModel)]="unstakeAmount" name="unstakeAmount" required>
+      </div>
+      <button type="submit">Unstake</button>
+    </form>
+  </section>
+
+  <section class="claim-rewards">
+    <h3>Claim Rewards</h3>
+    <p>Rewards: {{ rewards }} MPT tokens</p>
+    <button (click)="claimRewards()">Claim Rewards</button>
+  </section>
+</div>
