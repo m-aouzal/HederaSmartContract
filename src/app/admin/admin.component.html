@@ -1,54 +1,25 @@
 <div class="admin-container container mt-5">
   <h1 class="mb-4">Admin Page</h1>
   <p>Welcome, Admin!</p>
-  <button
-    class="btn btn-danger mb-4"
-    *ngIf="authService.getAuthStatus()"
-    (click)="authService.logout()"
-  >
-    Logout
-  </button>
-
-  <button class="btn btn-primary mb-4" (click)="toggleForm()">
-    Add Account
-  </button>
-
+  <button class="btn btn-danger mb-4" *ngIf="authService.getAuthStatus()" (click)="authService.logout()">Logout</button>
+  
+  <button class="btn btn-primary mb-4" (click)="toggleForm()">Add Account</button>
+  
   <div *ngIf="showForm" class="card p-4 mb-4">
     <form [formGroup]="accountForm" (ngSubmit)="addAccount()">
       <div class="form-group mb-3">
         <label for="accountId">Account ID</label>
-        <input
-          id="accountId"
-          class="form-control"
-          formControlName="accountId"
-          type="text"
-        />
+        <input id="accountId" class="form-control" formControlName="accountId" type="text" />
       </div>
       <div class="form-group mb-3">
         <label for="accountPrivateKey">Account Private Key</label>
-        <input
-          id="accountPrivateKey"
-          class="form-control"
-          formControlName="accountPrivateKey"
-          type="text"
-        />
+        <input id="accountPrivateKey" class="form-control" formControlName="accountPrivateKey" type="text" />
       </div>
       <div class="form-group mb-3">
         <label for="email">Email</label>
-        <input
-          id="email"
-          class="form-control"
-          formControlName="email"
-          type="email"
-        />
+        <input id="email" class="form-control" formControlName="email" type="email" />
       </div>
-      <button
-        type="submit"
-        class="btn btn-success"
-        [disabled]="accountForm.invalid"
-      >
-        Submit
-      </button>
+      <button type="submit" class="btn btn-success" [disabled]="accountForm.invalid">Submit</button>
     </form>
   </div>
 
@@ -57,31 +28,24 @@
     <form [formGroup]="queryForm" (ngSubmit)="queryAccount()">
       <div class="form-group mb-3">
         <label for="queryEmail">Email</label>
-        <input
-          id="queryEmail"
-          class="form-control"
-          formControlName="email"
-          type="email"
-        />
+        <input id="queryEmail" class="form-control" formControlName="email" type="email" />
       </div>
-      <button type="submit" class="btn btn-info" [disabled]="queryForm.invalid">
-        Query
-      </button>
+      <button type="submit" class="btn btn-info" [disabled]="queryForm.invalid">Query</button>
     </form>
 
     <div *ngIf="queriedAccount" class="mt-4">
       <h3>Account Details</h3>
-      <p><strong>Account ID:</strong> {{ queriedAccount.accountId }}</p>
       <p>
-        <strong>Account Private Key:</strong>
-        {{ queriedAccount.accountPrivateKey }}
+        <strong>Account ID:</strong> {{ queriedAccount.accountId }}
+        <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard(queriedAccount.accountId)">Copy</button>
+      </p>
+      <p>
+        <strong>Account Private Key:</strong> {{ queriedAccount.accountPrivateKey }}
+        <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard(queriedAccount.accountPrivateKey)">Copy</button>
       </p>
       <p><strong>Email:</strong> {{ queriedAccount.email }}</p>
     </div>
-    <div
-      *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty"
-      class="mt-4"
-    >
+    <div *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty" class="mt-4">
       <p>No account found with this email.</p>
     </div>
   </div>
@@ -99,59 +63,40 @@
       </thead>
       <tbody>
         <tr *ngFor="let account of accounts">
-          <td>{{ account.accountId }}</td>
-          <td>{{ account.accountPrivateKey }}</td>
+          <td>
+            {{ account.accountId }}
+            <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard(account.accountId)">Copy</button>
+          </td>
+          <td>
+            {{ account.accountPrivateKey }}
+            <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard(account.accountPrivateKey)">Copy</button>
+          </td>
           <td>{{ account.email }}</td>
           <td>
-            <button class="btn btn-danger" (click)="deleteAccount(account.id)">
-              Delete
-            </button>
+            <button class="btn btn-danger" (click)="deleteAccount(account.id)">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <button class="btn btn-primary mb-4" (click)="toggleTokenForm()">
-    Add Token
-  </button>
+  <button class="btn btn-primary mb-4" (click)="toggleTokenForm()">Add Token</button>
 
   <div *ngIf="showTokenForm" class="card p-4 mb-4">
     <form [formGroup]="tokenForm" (ngSubmit)="addToken()">
       <div class="form-group mb-3">
         <label for="tokenName">Token Name</label>
-        <input
-          id="tokenName"
-          class="form-control"
-          formControlName="tokenName"
-          type="text"
-        />
+        <input id="tokenName" class="form-control" formControlName="tokenName" type="text" />
       </div>
       <div class="form-group mb-3">
         <label for="tokenSymbol">Token Symbol</label>
-        <input
-          id="tokenSymbol"
-          class="form-control"
-          formControlName="tokenSymbol"
-          type="text"
-        />
+        <input id="tokenSymbol" class="form-control" formControlName="tokenSymbol" type="text" />
       </div>
       <div class="form-group mb-3">
         <label for="tokenId">Token ID</label>
-        <input
-          id="tokenId"
-          class="form-control"
-          formControlName="tokenId"
-          type="text"
-        />
+        <input id="tokenId" class="form-control" formControlName="tokenId" type="text" />
       </div>
-      <button
-        type="submit"
-        class="btn btn-success"
-        [disabled]="tokenForm.invalid"
-      >
-        Submit
-      </button>
+      <button type="submit" class="btn btn-success" [disabled]="tokenForm.invalid">Submit</button>
     </form>
   </div>
 
@@ -170,11 +115,12 @@
         <tr *ngFor="let token of tokens">
           <td>{{ token.tokenName }}</td>
           <td>{{ token.tokenSymbol }}</td>
-          <td>{{ token.tokenId }}</td>
           <td>
-            <button class="btn btn-danger" (click)="deleteToken(token.id)">
-              Delete
-            </button>
+            {{ token.tokenId }}
+            <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard(token.tokenId)">Copy</button>
+          </td>
+          <td>
+            <button class="btn btn-danger" (click)="deleteToken(token.id)">Delete</button>
           </td>
         </tr>
       </tbody>

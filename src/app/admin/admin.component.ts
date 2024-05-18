@@ -9,7 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Account } from '../services/Account';
-import { Token } from '../services/Token'; // Add this import
+import { Token } from '../services/Token';
 
 @Component({
   selector: 'app-admin',
@@ -22,17 +22,17 @@ export class AdminComponent implements OnInit {
   constructor(public authService: AuthService, private fb: FormBuilder) {}
   accountsService = inject(DataBaseService);
   accountForm: FormGroup;
-  tokenForm: FormGroup; // Add this line
+  tokenForm: FormGroup;
   queryForm: FormGroup;
   showForm = false;
-  showTokenForm = false; // Add this line
+  showTokenForm = false;
   accounts: Account[] = [];
-  tokens: Token[] = []; // Add this line
+  tokens: Token[] = [];
   queriedAccount: Account | null = null;
 
   ngOnInit() {
     this.loadAccounts();
-    this.loadTokens(); // Add this line
+    this.loadTokens();
 
     this.accountForm = this.fb.group({
       accountId: ['', Validators.required],
@@ -41,7 +41,6 @@ export class AdminComponent implements OnInit {
     });
 
     this.tokenForm = this.fb.group({
-      // Add this block
       tokenName: ['', Validators.required],
       tokenSymbol: ['', Validators.required],
       tokenId: ['', Validators.required],
@@ -57,7 +56,6 @@ export class AdminComponent implements OnInit {
   }
 
   toggleTokenForm() {
-    // Add this method
     this.showTokenForm = !this.showTokenForm;
   }
 
@@ -74,7 +72,6 @@ export class AdminComponent implements OnInit {
   }
 
   addToken() {
-    // Add this method
     if (this.tokenForm.valid) {
       const token = this.tokenForm.value;
       this.accountsService.addToken(token).subscribe((id) => {
@@ -103,7 +100,6 @@ export class AdminComponent implements OnInit {
   }
 
   loadTokens() {
-    // Add this method
     this.accountsService.getTokens().subscribe((tokens) => {
       this.tokens = tokens;
     });
@@ -117,10 +113,20 @@ export class AdminComponent implements OnInit {
   }
 
   deleteToken(tokenId: string) {
-    // Add this method
     this.accountsService.removeToken(tokenId).subscribe(() => {
       console.log('Token deleted:', tokenId);
       this.loadTokens();
     });
+  }
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        console.log('Copied to clipboard:', text);
+      },
+      (err) => {
+        console.error('Could not copy text: ', err);
+      }
+    );
   }
 }
