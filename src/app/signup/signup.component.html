@@ -1,0 +1,17 @@
+<div class="signup-container">
+  <h2>Sign Up</h2>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <input type="text" placeholder="Username" formControlName="username" />
+    </div>
+    <div class="form-group">
+      <input type="email" placeholder="Email" formControlName="email" />
+    </div>
+    <div class="form-group">
+      <input type="password" placeholder="Password" formControlName="password" />
+    </div>
+    <button type="submit">Sign Up</button>
+  </form>
+  <button (click)="navigateToLogin()">Already a member? Login</button>
+</div>
