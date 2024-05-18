@@ -13,5 +13,6 @@
     </div>
     <button type="submit">Sign Up</button>
   </form>
+  <button *ngIf="authService.currentUserSig()" (click)="authService.logout()">Logout</button>
   <button (click)="navigateToLogin()">Already a member? Login</button>
 </div>

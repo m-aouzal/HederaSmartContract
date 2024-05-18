@@ -1,15 +1,17 @@
-<h1>Login</h1>
+<div class="login-container">
+  <h1>Login</h1>
 
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="form-group">
-    <input type="text" placeholder="Email" formControlName="email" />
-  </div>
-  <div class="form-group">
-    <input type="password" placeholder="Password" formControlName="password" />
-  </div>
-  <div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <input type="email" placeholder="Email" formControlName="email" />
+    </div>
+    <div class="form-group">
+      <input type="password" placeholder="Password" formControlName="password" />
+    </div>
     <button type="submit">Sign In</button>
-  </div>
-</form>
-<button (click)="navigateToSignUp()">Not a member? Sign up</button>
+  </form>
+  <button *ngIf="authService.currentUserSig()" (click)="authService.logout()">Logout</button>
+  <button (click)="navigateToSignUp()">Not a member? Sign up</button>
+</div>

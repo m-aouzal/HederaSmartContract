@@ -42,9 +42,12 @@ export class AuthService {
     return from(promise);
   }
 
-  logout(): void {
-    this.isAuthenticated = false;
-    this.router.navigate(['/login']);
+  logout(): Observable<void> {
+    const promise = this.firebaseAuth.signOut().then(() => {
+      this.isAuthenticated = false;
+      this.router.navigate(['/login']);
+    });
+    return from(promise);
   }
   getAuthStatus(): boolean {
     return this.isAuthenticated;
