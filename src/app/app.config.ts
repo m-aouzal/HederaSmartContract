@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 const firebaseConfig = {
   apiKey: 'AIzaSyDLsVB0EtrGzpNCEUga9RnnzM93olJpek0',
   authDomain: 'hederarewarddistribution.firebaseapp.com',
@@ -22,6 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideFirestore(() => getFirestore()),
     provideAuth(() => getAuth()),
   ],
 };

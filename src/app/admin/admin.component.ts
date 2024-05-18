@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { DataBaseService } from '../services/dataBase.service';
 
 @Component({
   selector: 'app-admin',
@@ -9,6 +10,13 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css'],
 })
-export class AdminComponent {
+export class AdminComponent implements OnInit {
   constructor(public authService: AuthService) {}
+  accounts = inject(DataBaseService);
+
+  ngOnInit() {
+    this.accounts.getAccounts().subscribe((accounts) => {
+      console.log(accounts);
+    });
+  }
 }
