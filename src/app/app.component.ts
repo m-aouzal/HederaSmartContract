@@ -1,30 +1,34 @@
-import { Component,inject } from   '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {LoginComponent} from "./login/login.component";
+import { LoginComponent } from './login/login.component';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, LoginComponent, CommonModule],
+  imports: [RouterOutlet, LoginComponent, CommonModule, RouterLink],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'SmartContract';
-  authServices = inject(AuthService);
+  authService = inject(AuthService);
+
   logout(): void {
-    this.authServices.logout().subscribe();
+    this.authService.logout().subscribe();
   }
+
   ngOnInit() {
-    this.authServices.user$.subscribe((user) => {
+    this.authService.user$.subscribe((user) => {
       if (user) {
-        this.authServices.currentUserSig.set({
-          username: user.displayName!,
+        this.authService.currentUserSig.set({
           email: user.email!,
+          username: user.displayName ?? '',
         });
       } else {
-        this.authServices.currentUserSig.set(null);
+        this.authService.currentUserSig.set(null);
       }
     });
   }

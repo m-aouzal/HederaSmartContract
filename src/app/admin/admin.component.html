@@ -1,1 +1,5 @@
-<p>admin works!</p>
+<div class="admin-container">
+  <h1>Admin Page</h1>
+  <p>Welcome, Admin!</p>
+  <button *ngIf="authService.getAuthStatus()" (click)="authService.logout()">Logout</button>
+</div>

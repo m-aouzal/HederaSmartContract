@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
+  User,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Observable, from } from 'rxjs';
@@ -16,17 +17,36 @@ import { UserInterface } from './user.interface';
 export class AuthService {
   private isAuthenticated = false;
   firebaseAuth = inject(Auth);
-  constructor(private router: Router) {}
+  currentUserSig = signal<UserInterface | null>(null);
+
+  constructor(private router: Router) {
+    this.firebaseAuth.onAuthStateChanged((user) => {
+      if (user) {
+        this.currentUserSig.set({
+          email: user.email!,
+          username: user.displayName ?? '',
+        });
+        this.isAuthenticated = true;
+      } else {
+        this.currentUserSig.set(null);
+        this.isAuthenticated = false;
+      }
+    });
+  }
+
   user$ = user(this.firebaseAuth);
-  currentUserSig = signal<UserInterface | null | undefined>(undefined);
 
   login(email: string, password: string): Observable<void> {
     const promise = signInWithEmailAndPassword(
       this.firebaseAuth,
       email,
       password
-    ).then(() => {
+    ).then((userCredential) => {
       this.isAuthenticated = true;
+      this.currentUserSig.set({
+        email: userCredential.user.email!,
+        username: userCredential.user.displayName ?? '',
+      });
       this.router.navigate(['/dashboard']);
     });
     return from(promise);
@@ -38,7 +58,14 @@ export class AuthService {
       email,
       password
     ).then((userCredential) => {
-      updateProfile(userCredential.user, { displayName: username });
+      return updateProfile(userCredential.user, { displayName: username }).then(
+        () => {
+          this.currentUserSig.set({
+            email: userCredential.user.email!,
+            username: username,
+          });
+        }
+      );
     });
     return from(promise);
   }
@@ -46,6 +73,7 @@ export class AuthService {
   logout(): Observable<void> {
     const promise = this.firebaseAuth.signOut().then(() => {
       this.isAuthenticated = false;
+      this.currentUserSig.set(null);
       this.router.navigate(['/login']);
     });
     return from(promise);
