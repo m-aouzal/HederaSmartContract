@@ -24,11 +24,17 @@ export class AdminComponent implements OnInit {
   accountForm: FormGroup;
   tokenForm: FormGroup;
   queryForm: FormGroup;
+  deleteForm: FormGroup;
   showForm = false;
   showTokenForm = false;
+  showDeleteAccountForm = false;
+  showDeleteTokenForm = false;
   accounts: Account[] = [];
   tokens: Token[] = [];
   queriedAccount: Account | null = null;
+  randomWord: string = '';
+  deleteAccountId: string = '';
+  deleteTokenId: string = '';
 
   ngOnInit() {
     this.loadAccounts();
@@ -49,6 +55,19 @@ export class AdminComponent implements OnInit {
     this.queryForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
     });
+
+    this.deleteForm = this.fb.group({
+      securityWord: ['', Validators.required],
+    });
+  }
+
+  generateRandomWord() {
+    const words = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+    this.randomWord = words[Math.floor(Math.random() * words.length)];
+  }
+
+  validateSecurityWord(inputWord: string): boolean {
+    return inputWord === this.randomWord;
   }
 
   toggleForm() {
@@ -105,18 +124,49 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deleteAccount(accountId: string) {
-    this.accountsService.removeAccount(accountId).subscribe(() => {
-      console.log('Account deleted:', accountId);
-      this.loadAccounts();
-    });
+  confirmDeleteAccount(accountId: string) {
+    this.generateRandomWord();
+    this.deleteAccountId = accountId;
+    this.showDeleteAccountForm = true;
+    this.deleteForm.reset();
   }
 
-  deleteToken(tokenId: string) {
-    this.accountsService.removeToken(tokenId).subscribe(() => {
-      console.log('Token deleted:', tokenId);
-      this.loadTokens();
-    });
+  confirmDeleteToken(tokenId: string) {
+    this.generateRandomWord();
+    this.deleteTokenId = tokenId;
+    this.showDeleteTokenForm = true;
+    this.deleteForm.reset();
+  }
+
+  deleteAccount() {
+    if (this.validateSecurityWord(this.deleteForm.value.securityWord)) {
+      this.accountsService.removeAccount(this.deleteAccountId).subscribe(() => {
+        console.log('Account deleted:', this.deleteAccountId);
+        this.loadAccounts();
+        this.deleteAccountId = '';
+        this.showDeleteAccountForm = false;
+      });
+    } else {
+      alert('Security word does not match. Please try again.');
+    }
+  }
+
+  deleteToken() {
+    if (this.validateSecurityWord(this.deleteForm.value.securityWord)) {
+      this.accountsService.removeToken(this.deleteTokenId).subscribe(() => {
+        console.log('Token deleted:', this.deleteTokenId);
+        this.loadTokens();
+        this.deleteTokenId = '';
+        this.showDeleteTokenForm = false;
+      });
+    } else {
+      alert('Security word does not match. Please try again.');
+    }
+  }
+
+  cancelDelete() {
+    this.showDeleteAccountForm = false;
+    this.showDeleteTokenForm = false;
   }
 
   copyToClipboard(text: string) {
