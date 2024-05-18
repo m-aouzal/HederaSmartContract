@@ -1,5 +1,70 @@
-<div class="admin-container">
-  <h1>Admin Page</h1>
+<div class="admin-container container mt-5">
+  <h1 class="mb-4">Admin Page</h1>
   <p>Welcome, Admin!</p>
-  <button *ngIf="authService.getAuthStatus()" (click)="authService.logout()">Logout</button>
+  <button class="btn btn-danger mb-4" *ngIf="authService.getAuthStatus()" (click)="authService.logout()">Logout</button>
+  
+  <button class="btn btn-primary mb-4" (click)="toggleForm()">Add Account</button>
+  
+  <div *ngIf="showForm" class="card p-4 mb-4">
+    <form [formGroup]="accountForm" (ngSubmit)="addAccount()">
+      <div class="form-group mb-3">
+        <label for="accountId">Account ID</label>
+        <input id="accountId" class="form-control" formControlName="accountId" type="text" />
+      </div>
+      <div class="form-group mb-3">
+        <label for="accountPrivateKey">Account Private Key</label>
+        <input id="accountPrivateKey" class="form-control" formControlName="accountPrivateKey" type="text" />
+      </div>
+      <div class="form-group mb-3">
+        <label for="email">Email</label>
+        <input id="email" class="form-control" formControlName="email" type="email" />
+      </div>
+      <button type="submit" class="btn btn-success" [disabled]="accountForm.invalid">Submit</button>
+    </form>
+  </div>
+
+  <div class="card p-4 mb-4">
+    <h2 class="mb-4">Query Account</h2>
+    <form [formGroup]="queryForm" (ngSubmit)="queryAccount()">
+      <div class="form-group mb-3">
+        <label for="queryEmail">Email</label>
+        <input id="queryEmail" class="form-control" formControlName="email" type="email" />
+      </div>
+      <button type="submit" class="btn btn-info" [disabled]="queryForm.invalid">Query</button>
+    </form>
+
+    <div *ngIf="queriedAccount" class="mt-4">
+      <h3>Account Details</h3>
+      <p><strong>Account ID:</strong> {{ queriedAccount.accountId }}</p>
+      <p><strong>Account Private Key:</strong> {{ queriedAccount.accountPrivateKey }}</p>
+      <p><strong>Email:</strong> {{ queriedAccount.email }}</p>
+    </div>
+    <div *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty" class="mt-4">
+      <p>No account found with this email.</p>
+    </div>
+  </div>
+
+  <div class="card p-4">
+    <h2 class="mb-4">All Accounts</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Account ID</th>
+          <th scope="col">Account Private Key</th>
+          <th scope="col">Email</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let account of accounts">
+          <td>{{ account.accountId }}</td>
+          <td>{{ account.accountPrivateKey }}</td>
+          <td>{{ account.email }}</td>
+          <td>
+            <button class="btn btn-danger" (click)="deleteAccount(account.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
