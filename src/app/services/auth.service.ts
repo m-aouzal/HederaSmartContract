@@ -6,10 +6,10 @@ import {
   updateProfile,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { from } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { user } from 'rxfire/auth';
 import { UserInterface } from './user.interface';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,6 +19,7 @@ export class AuthService {
   constructor(private router: Router) {}
   user$ = user(this.firebaseAuth);
   currentUserSig = signal<UserInterface | null | undefined>(undefined);
+
   login(email: string, password: string): Observable<void> {
     const promise = signInWithEmailAndPassword(
       this.firebaseAuth,
@@ -49,7 +50,13 @@ export class AuthService {
     });
     return from(promise);
   }
+
   getAuthStatus(): boolean {
     return this.isAuthenticated;
+  }
+
+  isAdmin(): boolean {
+    const currentUser = this.currentUserSig();
+    return currentUser ? currentUser.email === 'aouzal1999@gmail.com' : false;
   }
 }

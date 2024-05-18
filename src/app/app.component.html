@@ -1,8 +1,30 @@
 <nav class="navbar">
   <a class="navbar-brand" routerLink="/">Token Management App</a>
   <div class="navbar-nav">
-    <a class="nav-item nav-link" routerLink="/login">Login</a>
-    <a class="nav-item nav-link" routerLink="/dashboard">Dashboard</a>
+    <a
+      class="nav-item nav-link"
+      *ngIf="!authServices.getAuthStatus()"
+      routerLink="/login"
+      >Login</a
+    >
+    <a
+      class="nav-item nav-link"
+      *ngIf="authServices.getAuthStatus()"
+      (click)="logout()"
+      >Logout</a
+    >
+    <a
+      class="nav-item nav-link"
+      *ngIf="authServices.getAuthStatus()"
+      routerLink="/dashboard"
+      >Dashboard</a
+    >
+    <a
+      class="nav-item nav-link"
+      *ngIf="authServices.getAuthStatus() && authServices.isAdmin()"
+      routerLink="/admin"
+      >Admin</a
+    >
   </div>
 </nav>
 <div class="container">
