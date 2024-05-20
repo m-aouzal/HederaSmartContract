@@ -44,6 +44,8 @@ export class AdminComponent implements OnInit {
       accountId: ['', Validators.required],
       accountPrivateKey: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      Ether: ['', Validators.required],
+      alias: ['', Validators.required],
     });
 
     this.tokenForm = this.fb.group({
@@ -80,24 +82,12 @@ export class AdminComponent implements OnInit {
 
   addAccount() {
     if (this.accountForm.valid) {
-      const account = this.accountForm.value;
+      const account: Account = this.accountForm.value;
       this.accountsService.addAccount(account).subscribe((id) => {
         console.log('Account added with ID:', id);
         this.accountForm.reset();
         this.showForm = false;
-        this.loadAccounts();
-      });
-    }
-  }
-
-  addToken() {
-    if (this.tokenForm.valid) {
-      const token = this.tokenForm.value;
-      this.accountsService.addToken(token).subscribe((id) => {
-        console.log('Token added with ID:', id);
-        this.tokenForm.reset();
-        this.showTokenForm = false;
-        this.loadTokens();
+        this.loadAccounts(); // Assuming you have a method to load accounts
       });
     }
   }
@@ -145,19 +135,6 @@ export class AdminComponent implements OnInit {
         this.loadAccounts();
         this.deleteAccountId = '';
         this.showDeleteAccountForm = false;
-      });
-    } else {
-      alert('Security word does not match. Please try again.');
-    }
-  }
-
-  deleteToken() {
-    if (this.validateSecurityWord(this.deleteForm.value.securityWord)) {
-      this.accountsService.removeToken(this.deleteTokenId).subscribe(() => {
-        console.log('Token deleted:', this.deleteTokenId);
-        this.loadTokens();
-        this.deleteTokenId = '';
-        this.showDeleteTokenForm = false;
       });
     } else {
       alert('Security word does not match. Please try again.');

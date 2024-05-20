@@ -33,6 +33,8 @@ export class DataBaseService {
       accountId: account.accountId,
       accountPrivateKey: account.accountPrivateKey,
       email: account.email,
+      Ether: account.Ether,
+      alias: account.alias,
     };
     const promise = addDoc(this.accounts, accountToAdd).then(
       (response) => response.id
@@ -63,21 +65,23 @@ export class DataBaseService {
     >;
   }
 
-  addToken(token: Token): Observable<string> {
-    const tokenToAdd = {
-      tokenName: token.tokenName,
-      tokenSymbol: token.tokenSymbol,
-      tokenId: token.tokenId,
-    };
-    const promise = addDoc(this.tokens, tokenToAdd).then(
-      (response) => response.id
-    );
-    return from(promise);
-  }
-
-  removeToken(tokenId: string): Observable<void> {
-    const docRef = doc(this.fireStore, `tokens/${tokenId}`);
-    const promise = deleteDoc(docRef);
-    return from(promise);
-  }
 }
+  // addToken(token: Token): Observable<string> {
+  //   const tokenToAdd = {
+  //     tokenName: token.tokenName,
+  //     tokenSymbol: token.tokenSymbol,
+  //     tokenId: token.tokenId,
+  //     tokenEther:token.tokenEther
+  //   };
+  //   const promise = addDoc(this.tokens, tokenToAdd).then(
+  //     (response) => response.id
+  //   );
+  //   return from(promise);
+  // }
+
+  // removeToken(tokenId: string): Observable<void> {
+  //   const docRef = doc(this.fireStore, `tokens/${tokenId}`);
+  //   const promise = deleteDoc(docRef);
+  //   return from(promise);
+  // }
+

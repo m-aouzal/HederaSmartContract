@@ -3,4 +3,6 @@ export interface Account {
   accountId: string;
   accountPrivateKey: string;
   email: string;
+  Ether:string;
+  alias:string;
 }
