@@ -58,30 +58,19 @@ export class DataBaseService {
     return from(promise);
   }
 
-  // Add these methods for handling tokens
   getTokens(): Observable<Token[]> {
     return collectionData(this.tokens, { idField: 'id' }) as Observable<
       Token[]
     >;
   }
 
+  getTokenByEmail(email: string): Observable<Token[]> {
+    const q = query(this.tokens, where('email', '==', email));
+    const promise = getDocs(q).then((snapshot) => {
+      return snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as Token)
+      );
+    });
+    return from(promise);
+  }
 }
-  // addToken(token: Token): Observable<string> {
-  //   const tokenToAdd = {
-  //     tokenName: token.tokenName,
-  //     tokenSymbol: token.tokenSymbol,
-  //     tokenId: token.tokenId,
-  //     tokenEther:token.tokenEther
-  //   };
-  //   const promise = addDoc(this.tokens, tokenToAdd).then(
-  //     (response) => response.id
-  //   );
-  //   return from(promise);
-  // }
-
-  // removeToken(tokenId: string): Observable<void> {
-  //   const docRef = doc(this.fireStore, `tokens/${tokenId}`);
-  //   const promise = deleteDoc(docRef);
-  //   return from(promise);
-  // }
-

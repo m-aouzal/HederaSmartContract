@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { DataBaseService } from '../services/dataBase.service';
+import { HederaService } from '../services/hedera.service'; // Import HederaService
 import {
   FormBuilder,
   FormGroup,
@@ -19,7 +20,11 @@ import { Token } from '../services/Token';
   styleUrls: ['./admin.component.css'],
 })
 export class AdminComponent implements OnInit {
-  constructor(public authService: AuthService, private fb: FormBuilder) {}
+  constructor(
+    public authService: AuthService,
+    private fb: FormBuilder,
+    private hederaService: HederaService
+  ) {} // Inject HederaService
   accountsService = inject(DataBaseService);
   accountForm: FormGroup;
   tokenForm: FormGroup;
@@ -35,10 +40,18 @@ export class AdminComponent implements OnInit {
   randomWord: string = '';
   deleteAccountId: string = '';
   deleteTokenId: string = '';
+  mstBalance: number = 0;
+  mptBalance: number = 0;
+  mstTokenId: string = '';
+  mptTokenId: string = '';
+  accountId: string = '';
+  privateKey: string = '';
 
   ngOnInit() {
+    console.log('AdminComponent initialized');
     this.loadAccounts();
     this.loadTokens();
+    this.getAccountDetails('aouzal1999@gmail.com'); // Fetch account details
 
     this.accountForm = this.fb.group({
       accountId: ['', Validators.required],
@@ -63,21 +76,115 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  async getAccountDetails(email: string) {
+    console.log(`Fetching account details for email: ${email}`);
+    this.accountsService.getAccountByEmail(email).subscribe((accounts) => {
+      console.log('Accounts fetched:', accounts);
+      if (accounts.length > 0) {
+        const account = accounts[0];
+        this.accountId = account.accountId;
+        this.privateKey = account.accountPrivateKey;
+        console.log(
+          `Account ID: ${this.accountId}, Private Key: ${this.privateKey}`
+        );
+        this.getBalances();
+      } else {
+        console.log('No account found for the given email.');
+      }
+    });
+
+    this.accountsService.getTokens().subscribe((tokens) => {
+      console.log('Tokens fetched:', tokens);
+      if (tokens.length > 0) {
+        const mstToken = tokens.find((token) => token.tokenSymbol === 'MST');
+        const mptToken = tokens.find((token) => token.tokenSymbol === 'MPT');
+
+        if (mstToken) {
+          this.mstTokenId = mstToken.tokenId;
+          console.log(`MST Token ID: ${this.mstTokenId}`);
+        } else {
+          console.log('No MST token found.');
+        }
+
+        if (mptToken) {
+          this.mptTokenId = mptToken.tokenId;
+          console.log(`MPT Token ID: ${this.mptTokenId}`);
+        } else {
+          console.log('No MPT token found.');
+        }
+      } else {
+        console.log('No tokens found.');
+      }
+    });
+  }
+  async getBalances() {
+    console.log('Fetching token balances...');
+    try {
+      await this.getMstBalance();
+      await this.getMptBalance();
+      await this.getMstBalance();
+      console.log(
+        `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
+      );
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+    }
+  }
+
+  async getMstBalance() {
+    console.log('Fetching MST balance...');
+    try {
+      console.log(
+        `Fetching MST balance for account: ${this.accountId} and token: ${this.mstTokenId}`
+      );
+      this.mstBalance =
+        (await this.hederaService.getTokenBalance(
+          this.accountId,
+          this.mstTokenId
+        )) || 0;
+      console.log(`Fetched MST Balance: ${this.mstBalance}`);
+    } catch (error) {
+      console.error('Error fetching MST balance:', error);
+    }
+  }
+
+  async getMptBalance() {
+    console.log('Fetching MPT balance...');
+    try {
+      console.log(
+        `Fetching MPT balance for account: ${this.accountId} and token: ${this.mptTokenId}`
+      );
+      this.mptBalance =
+        (await this.hederaService.getTokenBalance(
+          this.accountId,
+          this.mptTokenId
+        )) || 0;
+      console.log(`Fetched MPT Balance: ${this.mptBalance}`);
+    } catch (error) {
+      console.error('Error fetching MPT balance:', error);
+    }
+  }
+
   generateRandomWord() {
     const words = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
     this.randomWord = words[Math.floor(Math.random() * words.length)];
+    console.log(`Generated random word: ${this.randomWord}`);
   }
 
   validateSecurityWord(inputWord: string): boolean {
-    return inputWord === this.randomWord;
+    const isValid = inputWord === this.randomWord;
+    console.log(`Security word validation result: ${isValid}`);
+    return isValid;
   }
 
   toggleForm() {
     this.showForm = !this.showForm;
+    console.log(`Show form toggled: ${this.showForm}`);
   }
 
   toggleTokenForm() {
     this.showTokenForm = !this.showTokenForm;
+    console.log(`Show token form toggled: ${this.showTokenForm}`);
   }
 
   addAccount() {
@@ -95,22 +202,27 @@ export class AdminComponent implements OnInit {
   queryAccount() {
     if (this.queryForm.valid) {
       const email = this.queryForm.value.email;
+      console.log(`Querying account with email: ${email}`);
       this.accountsService.getAccountByEmail(email).subscribe((accounts) => {
         this.queriedAccount = accounts.length > 0 ? accounts[0] : null;
-        console.log(this.queriedAccount);
+        console.log('Queried account:', this.queriedAccount);
       });
     }
   }
 
-  loadAccounts() {
+  async loadAccounts() {
+    console.log('Loading accounts...');
     this.accountsService.getAccounts().subscribe((accounts) => {
       this.accounts = accounts;
+      console.log('Accounts loaded:', this.accounts);
     });
   }
 
-  loadTokens() {
+  async loadTokens() {
+    console.log('Loading tokens...');
     this.accountsService.getTokens().subscribe((tokens) => {
       this.tokens = tokens;
+      console.log('Tokens loaded:', this.tokens);
     });
   }
 
@@ -119,6 +231,7 @@ export class AdminComponent implements OnInit {
     this.deleteAccountId = accountId;
     this.showDeleteAccountForm = true;
     this.deleteForm.reset();
+    console.log(`Delete account confirmed for ID: ${accountId}`);
   }
 
   confirmDeleteToken(tokenId: string) {
@@ -126,6 +239,7 @@ export class AdminComponent implements OnInit {
     this.deleteTokenId = tokenId;
     this.showDeleteTokenForm = true;
     this.deleteForm.reset();
+    console.log(`Delete token confirmed for ID: ${tokenId}`);
   }
 
   deleteAccount() {
@@ -144,6 +258,7 @@ export class AdminComponent implements OnInit {
   cancelDelete() {
     this.showDeleteAccountForm = false;
     this.showDeleteTokenForm = false;
+    console.log('Delete operation cancelled.');
   }
 
   copyToClipboard(text: string) {

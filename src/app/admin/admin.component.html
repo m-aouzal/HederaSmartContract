@@ -9,6 +9,10 @@
     Logout
   </button>
 
+  <h3>Account Balances</h3>
+  <p>MST Balance: {{ mstBalance }}</p>
+  <p>MPT Balance: {{ mptBalance }}</p>
+
   <button class="btn btn-primary mb-4" (click)="toggleForm()">
     Add Account
   </button>
@@ -132,7 +136,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let account of accounts">
-          <td>
+           <td>
             {{ account.alias }}
           </td>
           <td>
@@ -171,6 +175,7 @@
               Delete
             </button>
           </td>
+         
         </tr>
       </tbody>
     </table>
