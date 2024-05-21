@@ -6,6 +6,7 @@ import { HederaService } from '../services/hedera.service'; // Import HederaServ
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -15,7 +16,7 @@ import { Token } from '../services/Token';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css'],
 })
@@ -46,12 +47,14 @@ export class AdminComponent implements OnInit {
   mptTokenId: string = '';
   accountId: string = '';
   privateKey: string = '';
+  mintMstAmount: number = 0;
+  mintMptAmount: number = 0;
 
   ngOnInit() {
     console.log('AdminComponent initialized');
     this.loadAccounts();
     this.loadTokens();
-    this.getAccountDetails('aouzal1999@gmail.com'); // Fetch account details
+    this.getAccountDetailsByAlias('Owner'); // Fetch account details
 
     this.accountForm = this.fb.group({
       accountId: ['', Validators.required],
@@ -76,12 +79,13 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  async getAccountDetails(email: string) {
-    console.log(`Fetching account details for email: ${email}`);
-    this.accountsService.getAccountByEmail(email).subscribe((accounts) => {
+  async getAccountDetailsByAlias(alias: string) {
+    console.log(`Fetching account details for alias: ${alias}`);
+    this.accountsService.getAccounts().subscribe((accounts) => {
       console.log('Accounts fetched:', accounts);
-      if (accounts.length > 0) {
-        const account = accounts[0];
+
+      const account = accounts.find((acc) => acc.alias === alias);
+      if (account) {
         this.accountId = account.accountId;
         this.privateKey = account.accountPrivateKey;
         console.log(
@@ -89,40 +93,37 @@ export class AdminComponent implements OnInit {
         );
         this.getBalances();
       } else {
-        console.log('No account found for the given email.');
+        console.log('No account found for the given alias.');
       }
     });
 
     this.accountsService.getTokens().subscribe((tokens) => {
       console.log('Tokens fetched:', tokens);
-      if (tokens.length > 0) {
-        const mstToken = tokens.find((token) => token.tokenSymbol === 'MST');
-        const mptToken = tokens.find((token) => token.tokenSymbol === 'MPT');
+      const mstToken = tokens.find((token) => token.tokenSymbol === 'MST');
+      const mptToken = tokens.find((token) => token.tokenSymbol === 'MPT');
 
-        if (mstToken) {
-          this.mstTokenId = mstToken.tokenId;
-          console.log(`MST Token ID: ${this.mstTokenId}`);
-        } else {
-          console.log('No MST token found.');
-        }
-
-        if (mptToken) {
-          this.mptTokenId = mptToken.tokenId;
-          console.log(`MPT Token ID: ${this.mptTokenId}`);
-        } else {
-          console.log('No MPT token found.');
-        }
+      if (mstToken) {
+        this.mstTokenId = mstToken.tokenId;
+        console.log(`MST Token ID: ${this.mstTokenId}`);
       } else {
-        console.log('No tokens found.');
+        console.log('No MST token found.');
+      }
+
+      if (mptToken) {
+        this.mptTokenId = mptToken.tokenId;
+        console.log(`MPT Token ID: ${this.mptTokenId}`);
+      } else {
+        console.log('No MPT token found.');
       }
     });
   }
+
   async getBalances() {
     console.log('Fetching token balances...');
     try {
       await this.getMstBalance();
-      await this.getMptBalance();
       await this.getMstBalance();
+      await this.getMptBalance();
       console.log(
         `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
       );
@@ -162,6 +163,44 @@ export class AdminComponent implements OnInit {
       console.log(`Fetched MPT Balance: ${this.mptBalance}`);
     } catch (error) {
       console.error('Error fetching MPT balance:', error);
+    }
+  }
+
+  async mintMstToken(amount: number) {
+    console.log(`Minting ${amount} MST tokens...`);
+    try {
+      console.log(
+        `Account ID: ${this.accountId}, Private Key: ${this.privateKey}, Token ID: ${this.mstTokenId}`
+      );
+      await this.hederaService.mintToken(
+        this.accountId,
+        this.privateKey,
+        this.mstTokenId,
+        amount
+      );
+      console.log(`Minted ${amount} MST tokens.`);
+      this.getMstBalance(); // Refresh MST balance
+    } catch (error) {
+      console.error('Error minting MST tokens:', error);
+    }
+  }
+
+  async mintMptToken(amount: number) {
+    console.log(`Minting ${amount} MPT tokens...`);
+    try {
+      console.log(
+        `Account ID: ${this.accountId}, Private Key: ${this.privateKey}, Token ID: ${this.mptTokenId}`
+      );
+      await this.hederaService.mintToken(
+        this.accountId,
+        this.privateKey,
+        this.mptTokenId,
+        amount
+      );
+      console.log(`Minted ${amount} MPT tokens.`);
+      this.getMptBalance(); // Refresh MPT balance
+    } catch (error) {
+      console.error('Error minting MPT tokens:', error);
     }
   }
 

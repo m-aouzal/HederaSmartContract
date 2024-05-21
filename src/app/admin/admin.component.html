@@ -136,7 +136,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let account of accounts">
-           <td>
+          <td>
             {{ account.alias }}
           </td>
           <td>
@@ -175,7 +175,6 @@
               Delete
             </button>
           </td>
-         
         </tr>
       </tbody>
     </table>
@@ -205,7 +204,6 @@
               Copy
             </button>
           </td>
-
           <td>
             {{ token.tokenEther }}
             <button
@@ -218,6 +216,40 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="card p-4 mb-4">
+    <h2 class="mb-4">Mint Tokens</h2>
+    <div class="form-group mb-3">
+      <label for="mintMstAmount">MST Amount</label>
+      <input
+        id="mintMstAmount"
+        class="form-control"
+       [(ngModel)]="mintMstAmount"
+        type="number"
+      />
+    </div>
+    <button
+      class="btn btn-primary mb-4"
+      (click)="mintMstToken(mintMstAmount)"
+    >
+      Mint MST Tokens
+    </button>
+    <div class="form-group mb-3">
+      <label for="mintMptAmount">MPT Amount</label>
+      <input
+        id="mintMptAmount"
+        class="form-control"
+        [(ngModel)]="mintMptAmount"
+        type="number"
+      />
+    </div>
+    <button
+      class="btn btn-primary mb-4"
+      (click)="mintMptToken(mintMptAmount)"
+    >
+      Mint MPT Tokens
+    </button>
   </div>
 
   <div
