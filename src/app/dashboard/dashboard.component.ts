@@ -5,6 +5,7 @@ import { HederaService } from '../services/hedera.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,6 +15,7 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
+  // Existing properties
   mstBalance: number = 0;
   mptBalance: number = 0;
   stakes: number = 0;
@@ -27,10 +29,17 @@ export class DashboardComponent implements OnInit {
   mstTokenId: string = '';
   mptTokenId: string = '';
   contractId: string = '0.0.4396021'; // replace with actual contract ID
-  claimSpinner: boolean = false; // Spinner flag for claiming rewards
-  stakeSpinner: boolean = false; // Spinner flag for staking tokens
-  unstakeSpinner: boolean = false; // Spinner flag for unstaking tokens
-  sendSpinner: boolean = false; 
+  claimSpinner: boolean = false;
+  stakeSpinner: boolean = false;
+  unstakeSpinner: boolean = false;
+  sendSpinner: boolean = false;
+
+  accountIdValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const valid = /^0\.0\.[0-9]{7}$/.test(control.value);
+      return valid ? null : { invalidAccountId: true };
+    };
+  }
 
   constructor(
     private authService: AuthService,
@@ -138,7 +147,7 @@ export class DashboardComponent implements OnInit {
         this.contractId,
         this.stakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
       await this.getBalances();
       await this.getStakesAndRewards();
@@ -173,7 +182,7 @@ export class DashboardComponent implements OnInit {
         this.contractId,
         this.unstakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3500)); // 5-second delay
 
       await this.getBalances();
       await this.getStakesAndRewards();
@@ -205,7 +214,7 @@ export class DashboardComponent implements OnInit {
         this.privateKey,
         this.contractId
       );
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3500)); // 5-second delay
 
       await this.getBalances();
       await this.getStakesAndRewards();
@@ -236,7 +245,7 @@ export class DashboardComponent implements OnInit {
         this.privateKey,
         this.contractId
       );
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3500)); // 5-second delay
 
       await this.getBalances();
       await this.getStakesAndRewards();
@@ -259,12 +268,16 @@ export class DashboardComponent implements OnInit {
 
   async sendTransaction() {
     if (this.transactionAmount > this.mptBalance) {
-      alert(`Insufficient balance. Maximum transferable amount: ${this.mptBalance}`);
+      alert(
+        `Insufficient balance. Maximum transferable amount: ${this.mptBalance}`
+      );
       return;
     }
     this.sendSpinner = true; // Show spinner
     try {
-      const etherAddress = await this.hederaService.fetchEtherAddress(this.recipientAccountId);
+      const etherAddress = await this.hederaService.fetchEtherAddress(
+        this.recipientAccountId
+      );
       console.log(`Fetched Ether address: ${etherAddress}`);
       const receiptStatus = await this.hederaService.transferMptTokens(
         this.accountId,
@@ -273,12 +286,14 @@ export class DashboardComponent implements OnInit {
         etherAddress,
         this.transactionAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3500)); // 5-second delay
 
       await this.getBalances();
 
       if (receiptStatus === 'SUCCESS') {
-        alert(`Transaction of ${this.transactionAmount} MPT tokens successful.`);
+        alert(
+          `Transaction of ${this.transactionAmount} MPT tokens successful.`
+        );
       } else {
         alert(`Transaction failed. Status: ${receiptStatus}`);
       }
