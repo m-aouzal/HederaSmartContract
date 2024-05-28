@@ -24,7 +24,8 @@ export class AdminComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private fb: FormBuilder,
-    private hederaService: HederaService
+    private hederaService: HederaService,
+    private dbService: DataBaseService
   ) {} // Inject HederaService
 
   accountsService = inject(DataBaseService);
@@ -53,7 +54,7 @@ export class AdminComponent implements OnInit {
   mintMstAmount: number = 0;
   mintMptAmount: number = 0;
   transferSpinner: boolean = false; // Add spinner flag
-
+  contractId: string = '0.0.4396021';
   ngOnInit() {
     console.log('AdminComponent initialized');
     this.loadAccounts();
@@ -239,11 +240,14 @@ export class AdminComponent implements OnInit {
 
     this.transferSpinner = true; // Show spinner
     try {
+      const etherAddress = await this.dbService.getEtherAddress(
+        recipientAccountId
+      );
       await this.hederaService.transferMstTokens(
         this.accountId,
         this.privateKey,
-        this.mstTokenId,
-        recipientAccountId,
+        this.contractId,
+        etherAddress,
         transferAmount
       );
       console.log(
@@ -273,11 +277,14 @@ export class AdminComponent implements OnInit {
 
     this.transferSpinner = true; // Show spinner
     try {
+      const etherAddress = await this.dbService.getEtherAddress(
+        recipientAccountId
+      );
       await this.hederaService.transferMptTokens(
         this.accountId,
         this.privateKey,
-        this.mptTokenId,
-        recipientAccountId,
+        this.contractId,
+        etherAddress,
         transferAmount
       );
       console.log(
