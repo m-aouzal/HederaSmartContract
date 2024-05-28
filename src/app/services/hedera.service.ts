@@ -1,23 +1,26 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   AccountId,
   PrivateKey,
   Client,
-  TokenMintTransaction,
+  ContractExecuteTransaction,
+  ContractFunctionParameters,
   Hbar,
+  TokenMintTransaction,
 } from '@hashgraph/sdk';
 import axios from 'axios';
+import { DataBaseService } from './dataBase.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HederaService {
   baseUrl = 'https://testnet.mirrornode.hedera.com/api/v1';
-
-  constructor() {}
+  private dbService = inject(DataBaseService);
 
   async queryMirrorNodeFor(url: string): Promise<any> {
-    console.log(`Fetching balance info from URL: ${url}`);
+    console.log(`Fetching data from URL: ${url}`);
     const response = await axios.get(url);
     return response.data;
   }
@@ -62,34 +65,202 @@ export class HederaService {
     tokenId: string,
     amount: number
   ): Promise<void> {
-    console.log(`Minting ${amount} tokens for token ID: ${tokenId}`);
-    const operatorId = AccountId.fromString(accountId);
-    const operatorKey = PrivateKey.fromStringECDSA(privateKey);
-    const client = Client.forTestnet().setOperator(operatorId, operatorKey);
+    try {
+      console.log(`Minting ${amount} tokens for token ID: ${tokenId}`);
+      const operatorId = AccountId.fromString(accountId);
+      const operatorKey = PrivateKey.fromStringECDSA(privateKey);
+      const client = Client.forTestnet().setOperator(operatorId, operatorKey);
 
-    console.log(`Client configured with Account ID: ${accountId}`);
+      console.log(`Client configured with Account ID: ${accountId}`);
 
-    const transaction = await new TokenMintTransaction()
-      .setTokenId(tokenId)
-      .setAmount(amount)
-      .setMaxTransactionFee(new Hbar(20)) // Adjust as necessary
-      .freezeWith(client);
+      const transaction = await new TokenMintTransaction()
+        .setTokenId(tokenId)
+        .setAmount(amount)
+        .setMaxTransactionFee(new Hbar(20)) // Adjust as necessary
+        .freezeWith(client);
 
-    console.log('Transaction frozen.');
+      console.log('Transaction frozen.');
 
-    const signTx = await transaction.sign(operatorKey);
-    console.log('Transaction signed.');
+      const signTx = await transaction.sign(operatorKey);
+      console.log('Transaction signed.');
 
-    const txResponse = await signTx.execute(client);
-    console.log('Transaction executed.');
+      const txResponse = await signTx.execute(client);
+      console.log('Transaction executed.');
 
-    const receipt = await txResponse.getReceipt(client);
-    console.log('Transaction receipt fetched.');
+      const receipt = await txResponse.getReceipt(client);
+      console.log('Transaction receipt fetched.');
 
-    if (receipt.status.toString() !== 'SUCCESS') {
-      throw new Error(`Token minting failed with status: ${receipt.status}`);
+      if (receipt.status.toString() !== 'SUCCESS') {
+        throw new Error(`Token minting failed with status: ${receipt.status}`);
+      }
+
+      console.log(`Minted ${amount} tokens successfully.`);
+    } catch (error) {
+      console.error('Error minting tokens:', error);
     }
+  }
 
-    console.log(`Minted ${amount} tokens successfully.`);
+  async executeContractFunction(
+    accountId: string,
+    privateKey: string,
+    contractId: string,
+    functionName: string,
+    parameters: ContractFunctionParameters
+  ): Promise<number> {
+    try {
+      console.log(`Executing contract function: ${functionName}`);
+      const operatorId = AccountId.fromString(accountId);
+      const operatorKey = PrivateKey.fromStringECDSA(privateKey);
+      const client = Client.forTestnet().setOperator(operatorId, operatorKey);
+
+      const transaction = await new ContractExecuteTransaction()
+        .setContractId(contractId)
+        .setGas(3000000)
+        .setFunction(functionName, parameters)
+        .setMaxTransactionFee(new Hbar(20))
+        .freezeWith(client);
+
+      const signTx = await transaction.sign(operatorKey);
+      const txResponse = await signTx.execute(client);
+      const receipt = await txResponse.getReceipt(client);
+
+      if (receipt.status.toString() !== 'SUCCESS') {
+        throw new Error(`Transaction failed with status: ${receipt.status}`);
+      }
+
+      console.log(`Executed ${functionName} successfully.`);
+      return receipt.status.toString() === 'SUCCESS' ? 1 : 0;
+    } catch (error) {
+      console.error(
+        `Error executing contract function ${functionName}:`,
+        error
+      );
+      return 0;
+    }
+  }
+
+  async stakeTokens(
+    accountId: string,
+    privateKey: string,
+    contractId: string,
+    amount: number
+  ) {
+    try {
+      console.log(`Staking ${amount} MST tokens for account: ${accountId}`);
+      const parameters = new ContractFunctionParameters().addUint64(amount);
+      await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'stakeTokens',
+        parameters
+      );
+      console.log(`Staked ${amount} MST tokens successfully.`);
+    } catch (error) {
+      console.error('Error staking tokens:', error);
+    }
+  }
+
+  async unstakeTokens(
+    accountId: string,
+    privateKey: string,
+    contractId: string,
+    amount: number
+  ) {
+    try {
+      console.log(`Unstaking ${amount} MST tokens for account: ${accountId}`);
+      const parameters = new ContractFunctionParameters().addUint64(amount);
+      await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'unstakeTokens',
+        parameters
+      );
+      console.log(`Unstaked ${amount} MST tokens successfully.`);
+    } catch (error) {
+      console.error('Error unstaking tokens:', error);
+    }
+  }
+
+  async claimRewards(
+    accountId: string,
+    privateKey: string,
+    contractId: string
+  ) {
+    try {
+      console.log(`Claiming rewards for account: ${accountId}`);
+      const parameters = new ContractFunctionParameters();
+      await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'claimRewards',
+        parameters
+      );
+      console.log(`Claimed rewards successfully.`);
+    } catch (error) {
+      console.error('Error claiming rewards:', error);
+    }
+  }
+
+  async transferMptTokens(
+    accountId: string,
+    privateKey: string,
+    contractId: string,
+    recipientAddress: string,
+    amount: number
+  ) {
+    try {
+      const parameters = new ContractFunctionParameters()
+        .addUint64(amount)
+        .addAddress(recipientAddress);
+      await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'transferMptTokens',
+        parameters
+      );
+      console.log(`Transferred ${amount} MPT tokens successfully.`);
+    } catch (error) {
+      console.error('Error transferring MPT tokens:', error);
+    }
+  }
+
+  async getStakes(accountId: string, contractId: string): Promise<number> {
+    try {
+      console.log(`Fetching stakes for account: ${accountId}`);
+      const parameters = new ContractFunctionParameters().addAddress(accountId);
+      const result = await this.executeContractFunction(
+        accountId,
+        '',
+        contractId,
+        'getStakes',
+        parameters
+      );
+      return result as unknown as number;
+    } catch (error) {
+      console.error('Error fetching stakes:', error);
+      return 0;
+    }
+  }
+
+  async getRewards(accountId: string, contractId: string): Promise<number> {
+    try {
+      console.log(`Fetching rewards for account: ${accountId}`);
+      const parameters = new ContractFunctionParameters().addAddress(accountId);
+      const result = await this.executeContractFunction(
+        accountId,
+        '',
+        contractId,
+        'getRewards',
+        parameters
+      );
+      return result as unknown as number;
+    } catch (error) {
+      console.error('Error fetching rewards:', error);
+      return 0;
+    }
   }
 }

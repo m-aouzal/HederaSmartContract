@@ -4,6 +4,7 @@
 
   <section class="balances">
     <h3>Token Balances</h3>
+    <p><strong>Account ID:</strong> {{ accountId }}</p>
     <p>MPT Balance: {{ mptBalance }}</p>
     <p>MST Balance: {{ mstBalance }}</p>
   </section>
@@ -13,11 +14,23 @@
     <form (ngSubmit)="sendTransaction()">
       <div class="form-group">
         <label for="recipientAccountId">Recipient Account ID</label>
-        <input type="text" id="recipientAccountId" [(ngModel)]="recipientAccountId" name="recipientAccountId" required>
+        <input
+          type="text"
+          id="recipientAccountId"
+          [(ngModel)]="recipientAccountId"
+          name="recipientAccountId"
+          required
+        />
       </div>
       <div class="form-group">
         <label for="transactionAmount">Amount</label>
-        <input type="number" id="transactionAmount" [(ngModel)]="transactionAmount" name="transactionAmount" required>
+        <input
+          type="number"
+          id="transactionAmount"
+          [(ngModel)]="transactionAmount"
+          name="transactionAmount"
+          required
+        />
       </div>
       <button type="submit">Send</button>
     </form>
@@ -28,7 +41,13 @@
     <form (ngSubmit)="stakeTokens()">
       <div class="form-group">
         <label for="stakeAmount">Amount</label>
-        <input type="number" id="stakeAmount" [(ngModel)]="stakeAmount" name="stakeAmount" required>
+        <input
+          type="number"
+          id="stakeAmount"
+          [(ngModel)]="stakeAmount"
+          name="stakeAmount"
+          required
+        />
       </div>
       <button type="submit">Stake</button>
     </form>
@@ -39,7 +58,13 @@
     <form (ngSubmit)="unstakeTokens()">
       <div class="form-group">
         <label for="unstakeAmount">Amount</label>
-        <input type="number" id="unstakeAmount" [(ngModel)]="unstakeAmount" name="unstakeAmount" required>
+        <input
+          type="number"
+          id="unstakeAmount"
+          [(ngModel)]="unstakeAmount"
+          name="unstakeAmount"
+          required
+        />
       </div>
       <button type="submit">Unstake</button>
     </form>

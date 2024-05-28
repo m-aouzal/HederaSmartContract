@@ -8,10 +8,10 @@ import {
   deleteDoc,
   collection,
 } from '@angular/fire/firestore';
-import { addDoc, getDocs } from 'firebase/firestore';
-import { Observable, from } from 'rxjs';
+import { addDoc, getDocs, getDocsFromCache, getDocsFromServer } from 'firebase/firestore';
+import { Observable, firstValueFrom, from } from 'rxjs';
 import { Account } from './Account';
-import { Token } from './Token'; // Add this import
+import { Token } from './Token';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ export class DataBaseService {
   constructor() {}
   fireStore = inject(Firestore);
   accounts = collection(this.fireStore, 'accounts');
-  tokens = collection(this.fireStore, 'tokens'); // Add this line
+  tokens = collection(this.fireStore, 'tokens');
 
   getAccounts(): Observable<Account[]> {
     return collectionData(this.accounts, { idField: 'id' }) as Observable<
@@ -52,6 +52,20 @@ export class DataBaseService {
     return from(promise);
   }
 
+  async getEtherAddress(accountId: string): Promise<string> {
+    const q = query(this.accounts, where('accountId', '==', accountId));
+    console.log('Query:', q);
+    const snapshot = await firstValueFrom(from(getDocs(q)));
+    console.log('Snapshot:', snapshot);
+    if (!snapshot.empty) {
+      const docData = snapshot.docs[0].data() as Account;
+      console.log('Document data:', docData);
+      return docData.Ether;
+    } else {
+      throw new Error('Account not found');
+    }
+  }
+
   removeAccount(accountId: string): Observable<void> {
     const docRef = doc(this.fireStore, `accounts/${accountId}`);
     const promise = deleteDoc(docRef);
@@ -62,15 +76,5 @@ export class DataBaseService {
     return collectionData(this.tokens, { idField: 'id' }) as Observable<
       Token[]
     >;
-  }
-
-  getTokenByEmail(email: string): Observable<Token[]> {
-    const q = query(this.tokens, where('email', '==', email));
-    const promise = getDocs(q).then((snapshot) => {
-      return snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Token)
-      );
-    });
-    return from(promise);
   }
 }
