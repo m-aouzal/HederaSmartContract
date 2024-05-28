@@ -16,8 +16,8 @@ import { firstValueFrom } from 'rxjs';
 export class DashboardComponent implements OnInit {
   mstBalance: number = 0;
   mptBalance: number = 0;
+  stakes: number = 0;
   rewards: number = 0;
-  staked: number = 0;
   recipientAccountId: string = '';
   transactionAmount: number = 0;
   stakeAmount: number = 0;
@@ -27,14 +27,9 @@ export class DashboardComponent implements OnInit {
   mstTokenId: string = '';
   mptTokenId: string = '';
   contractId: string = '0.0.4396021'; // replace with actual contract ID
-  transactionSpinner: boolean = false;
-  stakeSpinner: boolean = false;
-  unstakeSpinner: boolean = false;
-  claimSpinner: boolean = false;
-  transactionError: string = '';
-  stakeError: string = '';
-  unstakeError: string = '';
-  claimError: string = '';
+  claimSpinner: boolean = false; // Spinner flag for claiming rewards
+  stakeSpinner: boolean = false; // Spinner flag for staking tokens
+  unstakeSpinner: boolean = false; // Spinner flag for unstaking tokens
 
   constructor(
     private authService: AuthService,
@@ -89,21 +84,21 @@ export class DashboardComponent implements OnInit {
 
   async getBalances() {
     try {
-       this.mptBalance =
-         (await this.hederaService.getTokenBalance(
-           this.accountId,
-           this.mptTokenId
-         )) || 0;
-      this.mstBalance =
-        (await this.hederaService.getTokenBalance(
-          this.accountId,
-          this.mstTokenId
-        )) || 0;
       this.mptBalance =
         (await this.hederaService.getTokenBalance(
           this.accountId,
           this.mptTokenId
         )) || 0;
+      this.mstBalance =
+        (await this.hederaService.getTokenBalance(
+          this.accountId,
+          this.mstTokenId
+        )) || 0;
+        this.mptBalance =
+          (await this.hederaService.getTokenBalance(
+            this.accountId,
+            this.mptTokenId
+          )) || 0;
       console.log(
         `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
       );
@@ -119,113 +114,143 @@ export class DashboardComponent implements OnInit {
         this.privateKey,
         this.contractId
       );
-      this.staked = stakes;
+      this.stakes = stakes;
       this.rewards = rewards;
-      console.log(`Stakes: ${this.staked}, Rewards: ${this.rewards}`);
+      console.log(`Stakes: ${stakes}, Rewards: ${rewards}`);
     } catch (error) {
       console.error('Error fetching stakes and rewards:', error);
     }
   }
 
   async stakeTokens() {
-    console.log(
-      `Staking ${this.stakeAmount} MST tokens for account: ${this.accountId}`
-    );
-    this.stakeError = '';
+    if (this.stakeAmount > this.mstBalance) {
+      alert(
+        `Insufficient balance. Maximum stakeable amount: ${this.mstBalance}`
+      );
+      return;
+    }
     this.stakeSpinner = true;
     try {
-      if (this.mstBalance < this.stakeAmount) {
-        this.stakeError = `Insufficient balance. Maximum stakable amount: ${this.mstBalance}`;
-        this.stakeSpinner = false;
-        return;
-      }
       const receiptStatus = await this.hederaService.stakeTokens(
         this.accountId,
         this.privateKey,
         this.contractId,
         this.stakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 3500));
-      this.getBalances();
-      this.getStakesAndRewards();
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+
+      await this.getBalances();
+      await this.getStakesAndRewards();
+
       if (receiptStatus === 'SUCCESS') {
         alert(`Staked ${this.stakeAmount} MST tokens successfully.`);
       } else {
-        this.stakeError = `Staking failed. Status: ${receiptStatus}`;
+        alert(`Staking ${this.stakeAmount} MST tokens failed.`);
       }
     } catch (error) {
       console.error('Error staking tokens:', error);
       const errorMessage = error.message.split('at')[0].trim();
-      this.stakeError = `Error staking tokens. ${errorMessage}`;
+      alert(`Error staking tokens. ${errorMessage}`);
     } finally {
       this.stakeSpinner = false;
-      this.stakeAmount = 0;
+      this.stakeAmount = 0; // Reset stake amount
     }
   }
 
   async unstakeTokens() {
-    console.log(
-      `Unstaking ${this.unstakeAmount} MST tokens for account: ${this.accountId}`
-    );
-    this.unstakeError = '';
+    if (this.stakes < this.unstakeAmount) {
+      alert(
+        `Insufficient staked amount. Maximum unstakable amount: ${this.stakes}`
+      );
+      return;
+    }
     this.unstakeSpinner = true;
     try {
-      if (this.staked < this.unstakeAmount) {
-        this.unstakeError = `Insufficient staked balance. Maximum unstakable amount: ${this.staked}`;
-        this.unstakeSpinner = false;
-        return;
-      }
       const receiptStatus = await this.hederaService.unstakeTokens(
         this.accountId,
         this.privateKey,
         this.contractId,
         this.unstakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 3500));
-      this.getBalances();
-      this.getStakesAndRewards();
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+
+      await this.getBalances();
+      await this.getStakesAndRewards();
+
       if (receiptStatus === 'SUCCESS') {
         alert(`Unstaked ${this.unstakeAmount} MST tokens successfully.`);
       } else {
-        this.unstakeError = `Unstaking failed. Status: ${receiptStatus}`;
+        alert(`Unstaking ${this.unstakeAmount} MST tokens failed.`);
       }
     } catch (error) {
       console.error('Error unstaking tokens:', error);
       const errorMessage = error.message.split('at')[0].trim();
-      this.unstakeError = `Error unstaking tokens. ${errorMessage}`;
+      alert(`Error unstaking tokens. ${errorMessage}`);
     } finally {
       this.unstakeSpinner = false;
-      this.unstakeAmount = 0;
+      this.unstakeAmount = 0; // Reset unstake amount
+    }
+  }
+
+  async unstakeAllTokens() {
+    if (this.stakes <= 0) {
+      alert(`No tokens to unstake.`);
+      return;
+    }
+    this.unstakeSpinner = true;
+    try {
+      const receiptStatus = await this.hederaService.unstakeAllTokens(
+        this.accountId,
+        this.privateKey,
+        this.contractId
+      );
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+
+      await this.getBalances();
+      await this.getStakesAndRewards();
+
+      if (receiptStatus === 'SUCCESS') {
+        alert(`Unstaked all tokens successfully.`);
+      } else {
+        alert(`Unstaking all tokens failed.`);
+      }
+    } catch (error) {
+      console.error('Error unstaking all tokens:', error);
+      const errorMessage = error.message.split('at')[0].trim();
+      alert(`Error unstaking all tokens. ${errorMessage}`);
+    } finally {
+      this.unstakeSpinner = false;
     }
   }
 
   async claimRewards() {
-    console.log(`Claiming rewards for account: ${this.accountId}`);
-    this.claimError = '';
+    if (this.stakes <= 0) {
+      alert(`No staked tokens available for claiming rewards.`);
+      return;
+    }
     this.claimSpinner = true;
     try {
-      if (this.staked === 0) {
-        this.claimError = 'You must have staked tokens to claim rewards.';
-        this.claimSpinner = false;
-        return;
-      }
       const receiptStatus = await this.hederaService.claimRewards(
         this.accountId,
         this.privateKey,
         this.contractId
       );
-      await new Promise((resolve) => setTimeout(resolve, 3500));
-      this.getBalances();
-      this.getStakesAndRewards();
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+
+      await this.getBalances();
+      await this.getStakesAndRewards();
+
       if (receiptStatus === 'SUCCESS') {
-        alert(`Claimed rewards successfully.`);
+        alert(
+          `Congratulations! You have collected ${this.rewards} MPT tokens.`
+        );
       } else {
-        this.claimError = `Claiming rewards failed. Status: ${receiptStatus}`;
+        alert(`Claiming rewards failed.`);
       }
     } catch (error) {
       console.error('Error claiming rewards:', error);
       const errorMessage = error.message.split('at')[0].trim();
-      this.claimError = `Error claiming rewards. ${errorMessage}`;
+      alert(`Error claiming rewards. ${errorMessage}`);
     } finally {
       this.claimSpinner = false;
     }
@@ -235,31 +260,33 @@ export class DashboardComponent implements OnInit {
     console.log(
       `Sending ${this.transactionAmount} MPT tokens to ${this.recipientAccountId}`
     );
-    this.transactionError = '';
-    this.transactionSpinner = true;
     try {
+      const etherAddress = await this.hederaService.fetchEtherAddress(
+        this.recipientAccountId
+      );
+      console.log(`Fetched Ether address: ${etherAddress}`);
       const receiptStatus = await this.hederaService.transferMptTokens(
         this.accountId,
         this.privateKey,
         this.contractId,
-        this.recipientAccountId,
+        etherAddress,
         this.transactionAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 3500));
-      this.getBalances();
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+
+      await this.getBalances();
+
       if (receiptStatus === 'SUCCESS') {
-        alert(`Transferred ${this.transactionAmount} MPT tokens successfully.`);
+        alert(
+          `Transaction of ${this.transactionAmount} MPT tokens successful.`
+        );
       } else {
-        this.transactionError = `Transfer failed. Status: ${receiptStatus}`;
+        alert(`Transaction failed. Status: ${receiptStatus}`);
       }
     } catch (error) {
       console.error('Error sending transaction:', error);
       const errorMessage = error.message.split('at')[0].trim();
-      this.transactionError = `Error sending transaction. ${errorMessage}`;
-    } finally {
-      this.transactionSpinner = false;
-      this.transactionAmount = 0;
-      this.recipientAccountId = '';
+      alert(`Error sending transaction. ${errorMessage}`);
     }
   }
 

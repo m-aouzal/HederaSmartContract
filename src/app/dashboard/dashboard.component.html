@@ -7,7 +7,7 @@
     <p><strong>Account ID:</strong> {{ accountId }}</p>
     <p>MPT Balance: {{ mptBalance }}</p>
     <p>MST Balance: {{ mstBalance }}</p>
-    <p>Stakes: {{ stakes }}</p> <!-- Display stakes -->
+    <p>Stakes: {{ stakes }}</p>
   </section>
 
   <section class="send-tokens">
@@ -50,11 +50,11 @@
           required
         />
       </div>
-      <button type="submit">Stake</button>
+      <button type="submit">Stake <span *ngIf="stakeSpinner" class="spinner-border spinner-border-sm ms-2"></span></button>
     </form>
   </section>
 
-  <section class="unstake-tokens">
+  <section *ngIf="stakes > 0" class="unstake-tokens">
     <h3>Unstake Tokens</h3>
     <form (ngSubmit)="unstakeTokens()">
       <div class="form-group">
@@ -67,13 +67,13 @@
           required
         />
       </div>
-      <button type="submit">Unstake</button>
+      <button type="submit">Unstake <span *ngIf="unstakeSpinner" class="spinner-border spinner-border-sm ms-2"></span></button>
     </form>
+    <button (click)="unstakeAllTokens()">Unstake All <span *ngIf="unstakeSpinner" class="spinner-border spinner-border-sm ms-2"></span></button>
   </section>
 
-  <section class="claim-rewards">
+  <section *ngIf="stakes > 0" class="claim-rewards">
     <h3>Claim Rewards</h3>
-    <p>Rewards: {{ rewards }} MPT tokens</p>
-    <button (click)="claimRewards()">Claim Rewards</button>
+    <button (click)="claimRewards()">Claim Rewards <span *ngIf="claimSpinner" class="spinner-border spinner-border-sm ms-2"></span></button>
   </section>
 </div>

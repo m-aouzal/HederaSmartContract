@@ -154,7 +154,6 @@ export class HederaService {
       return 0;
     }
   }
-
   async stakeTokens(
     accountId: string,
     privateKey: string,
@@ -172,10 +171,10 @@ export class HederaService {
         parameters
       );
       console.log(`Staked ${amount} MST tokens successfully.`);
-      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
     } catch (error) {
       console.error('Error staking tokens:', error);
-      return 'ERROR';
+      return 'ERROR'; // Return error status
     }
   }
 
@@ -196,10 +195,33 @@ export class HederaService {
         parameters
       );
       console.log(`Unstaked ${amount} MST tokens successfully.`);
-      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
     } catch (error) {
       console.error('Error unstaking tokens:', error);
-      return 'ERROR';
+      return 'ERROR'; // Return error status
+    }
+  }
+
+  async unstakeAllTokens(
+    accountId: string,
+    privateKey: string,
+    contractId: string
+  ): Promise<string> {
+    try {
+      console.log(`Unstaking all tokens for account: ${accountId}`);
+      const parameters = new ContractFunctionParameters();
+      const receiptStatus = await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'unstakeAllTokens',
+        parameters
+      );
+      console.log(`Unstaked all tokens successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
+    } catch (error) {
+      console.error('Error unstaking all tokens:', error);
+      return 'ERROR'; // Return error status
     }
   }
 
@@ -219,10 +241,10 @@ export class HederaService {
         parameters
       );
       console.log(`Claimed rewards successfully.`);
-      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
     } catch (error) {
       console.error('Error claiming rewards:', error);
-      return 'ERROR';
+      return 'ERROR'; // Return error status
     }
   }
 
@@ -293,26 +315,34 @@ export class HederaService {
   ): Promise<{ stakes: number; rewards: number }> {
     try {
       const accountEvm = await this.fetchEtherAddress(accountId);
-      const stakesResult = await this.executeContractFunction(
-        accountId,
-        privateKey,
-        contractId,
-        'getStakes',
-        new ContractFunctionParameters().addAddress(accountEvm)
+      const client = Client.forTestnet().setOperator(
+        AccountId.fromString(accountId),
+        PrivateKey.fromStringECDSA(privateKey)
       );
 
-      const rewardsResult = await this.executeContractFunction(
-        accountId,
-        privateKey,
-        contractId,
-        'getMyReward',
-        new ContractFunctionParameters()
-      );
+      const stakesQuery = new ContractExecuteTransaction()
+        .setContractId(contractId)
+        .setGas(3000000)
+        .setFunction(
+          'getStakes',
+          new ContractFunctionParameters().addAddress(accountEvm)
+        );
+      const stakesTransactionId = await stakesQuery.execute(client);
+      const stakesRecord = await stakesTransactionId.getRecord(client);
+      const stakesContractFunctionResult = stakesRecord.contractFunctionResult;
+      const stakes = stakesContractFunctionResult.getUint64(0).toString();
 
-      const stakes = stakesResult as unknown as number;
-      const rewards = rewardsResult as unknown as number;
+      const rewardsQuery = new ContractExecuteTransaction()
+        .setContractId(contractId)
+        .setGas(3000000)
+        .setFunction('getMyReward', new ContractFunctionParameters());
+      const rewardsTransactionId = await rewardsQuery.execute(client);
+      const rewardsRecord = await rewardsTransactionId.getRecord(client);
+      const rewardsContractFunctionResult =
+        rewardsRecord.contractFunctionResult;
+      const rewards = rewardsContractFunctionResult.getUint64(0).toString();
 
-      return { stakes, rewards };
+      return { stakes: Number(stakes), rewards: Number(rewards) };
     } catch (error) {
       console.error(
         `Error getting stakes and rewards for account ${accountId}:`,
