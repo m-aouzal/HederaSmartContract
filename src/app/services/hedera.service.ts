@@ -204,6 +204,31 @@ export class HederaService {
     }
   }
 
+  async transferMstTokens(
+    accountId: string,
+    privateKey: string,
+    contractId: string,
+    recipientAddress: string,
+    amount: number
+  ) {
+    try {
+      console.log(`Transferring ${amount} MST tokens to ${recipientAddress}`);
+      const parameters = new ContractFunctionParameters()
+        .addUint64(amount)
+        .addAddress(recipientAddress);
+      await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'transferMstTokens',
+        parameters
+      );
+      console.log(`Transferred ${amount} MST tokens successfully.`);
+    } catch (error) {
+      console.error('Error transferring MST tokens:', error);
+    }
+  }
+
   async transferMptTokens(
     accountId: string,
     privateKey: string,
@@ -212,6 +237,7 @@ export class HederaService {
     amount: number
   ) {
     try {
+      console.log(`Transferring ${amount} MPT tokens to ${recipientAddress}`);
       const parameters = new ContractFunctionParameters()
         .addUint64(amount)
         .addAddress(recipientAddress);

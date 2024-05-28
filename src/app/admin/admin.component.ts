@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { DataBaseService } from '../services/dataBase.service';
-import { HederaService } from '../services/hedera.service'; // Import HederaService
+import { HederaService } from '../services/hedera.service';
 import {
   FormBuilder,
   FormGroup,
@@ -26,15 +26,18 @@ export class AdminComponent implements OnInit {
     private fb: FormBuilder,
     private hederaService: HederaService
   ) {} // Inject HederaService
+
   accountsService = inject(DataBaseService);
   accountForm: FormGroup;
   tokenForm: FormGroup;
   queryForm: FormGroup;
   deleteForm: FormGroup;
+  transferForm: FormGroup; // Add transfer form
   showForm = false;
   showTokenForm = false;
   showDeleteAccountForm = false;
   showDeleteTokenForm = false;
+  showTransferForm = false; // Add show transfer form
   accounts: Account[] = [];
   tokens: Token[] = [];
   queriedAccount: Account | null = null;
@@ -49,6 +52,7 @@ export class AdminComponent implements OnInit {
   privateKey: string = '';
   mintMstAmount: number = 0;
   mintMptAmount: number = 0;
+  transferSpinner: boolean = false; // Add spinner flag
 
   ngOnInit() {
     console.log('AdminComponent initialized');
@@ -76,6 +80,12 @@ export class AdminComponent implements OnInit {
 
     this.deleteForm = this.fb.group({
       securityWord: ['', Validators.required],
+    });
+
+    this.transferForm = this.fb.group({
+      recipientAccountId: ['', Validators.required],
+      transferAmount: [0, [Validators.required, Validators.min(1)]],
+      tokenType: ['MST', Validators.required],
     });
   }
 
@@ -204,6 +214,87 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  async transferTokens() {
+    if (this.transferForm.valid) {
+      const { recipientAccountId, transferAmount, tokenType } =
+        this.transferForm.value;
+
+      if (tokenType === 'MST') {
+        await this.transferMstTokens(recipientAccountId, transferAmount);
+      } else if (tokenType === 'MPT') {
+        await this.transferMptTokens(recipientAccountId, transferAmount);
+      }
+    }
+  }
+
+  async transferMstTokens(recipientAccountId: string, transferAmount: number) {
+    const currentBalance = this.mstBalance;
+
+    if (currentBalance < transferAmount) {
+      alert(
+        `Insufficient balance. Maximum transferable amount: ${currentBalance}`
+      );
+      return;
+    }
+
+    this.transferSpinner = true; // Show spinner
+    try {
+      await this.hederaService.transferMstTokens(
+        this.accountId,
+        this.privateKey,
+        this.mstTokenId,
+        recipientAccountId,
+        transferAmount
+      );
+      console.log(
+        `Transferred ${transferAmount} MST tokens to ${recipientAccountId}.`
+      );
+
+      // Delay for 5 seconds to allow transaction propagation
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      await this.getBalances(); // Refresh balances
+    } catch (error) {
+      console.error('Error transferring MST tokens:', error);
+    } finally {
+      this.transferSpinner = false; // Hide spinner
+    }
+  }
+
+  async transferMptTokens(recipientAccountId: string, transferAmount: number) {
+    const currentBalance = this.mptBalance;
+
+    if (currentBalance < transferAmount) {
+      alert(
+        `Insufficient balance. Maximum transferable amount: ${currentBalance}`
+      );
+      return;
+    }
+
+    this.transferSpinner = true; // Show spinner
+    try {
+      await this.hederaService.transferMptTokens(
+        this.accountId,
+        this.privateKey,
+        this.mptTokenId,
+        recipientAccountId,
+        transferAmount
+      );
+      console.log(
+        `Transferred ${transferAmount} MPT tokens to ${recipientAccountId}.`
+      );
+
+      // Delay for 5 seconds to allow transaction propagation
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      await this.getBalances(); // Refresh balances
+    } catch (error) {
+      console.error('Error transferring MPT tokens:', error);
+    } finally {
+      this.transferSpinner = false; // Hide spinner
+    }
+  }
+
   generateRandomWord() {
     const words = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
     this.randomWord = words[Math.floor(Math.random() * words.length)];
@@ -224,6 +315,11 @@ export class AdminComponent implements OnInit {
   toggleTokenForm() {
     this.showTokenForm = !this.showTokenForm;
     console.log(`Show token form toggled: ${this.showTokenForm}`);
+  }
+
+  toggleTransferForm() {
+    this.showTransferForm = !this.showTransferForm;
+    console.log(`Show transfer form toggled: ${this.showTransferForm}`);
   }
 
   addAccount() {
