@@ -235,7 +235,6 @@ export class AdminComponent implements OnInit {
       }
     }
   }
-
   async transferTokens() {
     if (this.transferForm.valid) {
       const { recipientAccountId, transferAmount, tokenType } =
@@ -253,13 +252,11 @@ export class AdminComponent implements OnInit {
 
       this.transferSpinner = true; // Show spinner
       try {
-        const etherAddress = await this.accountsService.getEtherAddress(
+        const etherAddress = await this.hederaService.fetchEtherAddress(
           recipientAccountId
         );
-        console.log(
-          `Fetched Ether address and transfer amount: ${etherAddress}`
-        );
-        console.log(transferAmount);
+        console.log(`Fetched Ether address: ${etherAddress}`);
+
         let receiptStatus;
         if (tokenType === 'MST') {
           receiptStatus = await this.hederaService.transferMstTokens(
@@ -278,8 +275,8 @@ export class AdminComponent implements OnInit {
             transferAmount
           );
         }
-        await new Promise((resolve) => setTimeout(resolve, 3500));
 
+        await new Promise((resolve) => setTimeout(resolve, 3500));
         await this.getBalances(); // Refresh balances
 
         if (receiptStatus === 'SUCCESS') {

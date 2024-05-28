@@ -25,6 +25,19 @@ export class HederaService {
     return response.data;
   }
 
+  async fetchEtherAddress(accountId: string): Promise<string | null> {
+    console.log(`Fetching EVM address for account: ${accountId}`);
+    const url = `${this.baseUrl}/accounts/${accountId}?limit=2&order=asc&transactiontype=cryptotransfer&transactions=true`;
+    const accountInfo = await this.queryMirrorNodeFor(url);
+    console.log('Account info fetched:', accountInfo);
+
+    if (accountInfo && accountInfo.evm_address) {
+      return accountInfo.evm_address;
+    }
+
+    console.log('No EVM address found for the given account.');
+    return null;
+  }
   async getTokenBalance(
     accountId: string,
     tokenId: string
