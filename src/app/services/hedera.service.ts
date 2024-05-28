@@ -308,11 +308,11 @@ export class HederaService {
     }
   }
 
-  async getStakesAndRewards(
+  async getStakes(
     accountId: string,
     privateKey: string,
     contractId: string
-  ): Promise<{ stakes: number; rewards: number }> {
+  ): Promise<number> {
     try {
       const accountEvm = await this.fetchEtherAddress(accountId);
       const client = Client.forTestnet().setOperator(
@@ -332,6 +332,24 @@ export class HederaService {
       const stakesContractFunctionResult = stakesRecord.contractFunctionResult;
       const stakes = stakesContractFunctionResult.getUint64(0).toString();
 
+      return Number(stakes);
+    } catch (error) {
+      console.error(`Error getting stakes for account ${accountId}:`, error);
+      return 0;
+    }
+  }
+
+  async getRewards(
+    accountId: string,
+    privateKey: string,
+    contractId: string
+  ): Promise<number> {
+    try {
+      const client = Client.forTestnet().setOperator(
+        AccountId.fromString(accountId),
+        PrivateKey.fromStringECDSA(privateKey)
+      );
+
       const rewardsQuery = new ContractExecuteTransaction()
         .setContractId(contractId)
         .setGas(3000000)
@@ -342,53 +360,12 @@ export class HederaService {
         rewardsRecord.contractFunctionResult;
       const rewards = rewardsContractFunctionResult.getUint64(0).toString();
 
-      return { stakes: Number(stakes), rewards: Number(rewards) };
+      return Number(rewards);
     } catch (error) {
-      console.error(
-        `Error getting stakes and rewards for account ${accountId}:`,
-        error
-      );
-      return { stakes: 0, rewards: 0 };
-    }
-  }
-
-  async getStakes(accountId: string, contractId: string): Promise<number> {
-    try {
-      const accountEvm = await this.fetchEtherAddress(accountId);
-      console.log(`Fetching stakes for account: ${accountId}`);
-      const parameters = new ContractFunctionParameters().addAddress(
-        accountEvm
-      );
-      const result = await this.executeContractFunction(
-        accountId,
-        '',
-        contractId,
-        'getStakes',
-        parameters
-      );
-      return result as unknown as number;
-    } catch (error) {
-      console.error('Error fetching stakes:', error);
+      console.error(`Error getting rewards for account ${accountId}:`, error);
       return 0;
     }
   }
 
-  async getRewards(accountId: string, contractId: string): Promise<number> {
-    try {
-      const accountEvm = await this.fetchEtherAddress(accountId);
-      console.log(`Fetching rewards for account: ${accountId}`);
-      const parameters = new ContractFunctionParameters().addAddress(accountId);
-      const result = await this.executeContractFunction(
-        accountId,
-        '',
-        contractId,
-        'getRewards',
-        parameters
-      );
-      return result as unknown as number;
-    } catch (error) {
-      console.error('Error fetching rewards:', error);
-      return 0;
-    }
-  }
+
 }
