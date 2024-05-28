@@ -52,19 +52,7 @@ export class DataBaseService {
     return from(promise);
   }
 
-  async getEtherAddress(accountId: string): Promise<string> {
-    const q = query(this.accounts, where('accountId', '==', accountId));
-    console.log('Query:', q);
-    const snapshot = await firstValueFrom(from(getDocs(q)));
-    console.log('Snapshot:', snapshot);
-    if (!snapshot.empty) {
-      const docData = snapshot.docs[0].data() as Account;
-      console.log('Document data:', docData);
-      return docData.Ether;
-    } else {
-      throw new Error('Account not found');
-    }
-  }
+
 
   removeAccount(accountId: string): Observable<void> {
     const docRef = doc(this.fireStore, `accounts/${accountId}`);

@@ -38,6 +38,7 @@ export class HederaService {
     console.log('No EVM address found for the given account.');
     return null;
   }
+
   async getTokenBalance(
     accountId: string,
     tokenId: string
@@ -159,11 +160,11 @@ export class HederaService {
     privateKey: string,
     contractId: string,
     amount: number
-  ) {
+  ): Promise<string> {
     try {
       console.log(`Staking ${amount} MST tokens for account: ${accountId}`);
       const parameters = new ContractFunctionParameters().addUint64(amount);
-      await this.executeContractFunction(
+      const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
         contractId,
@@ -171,8 +172,10 @@ export class HederaService {
         parameters
       );
       console.log(`Staked ${amount} MST tokens successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
     } catch (error) {
       console.error('Error staking tokens:', error);
+      return 'ERROR';
     }
   }
 
@@ -181,11 +184,11 @@ export class HederaService {
     privateKey: string,
     contractId: string,
     amount: number
-  ) {
+  ): Promise<string> {
     try {
       console.log(`Unstaking ${amount} MST tokens for account: ${accountId}`);
       const parameters = new ContractFunctionParameters().addUint64(amount);
-      await this.executeContractFunction(
+      const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
         contractId,
@@ -193,8 +196,10 @@ export class HederaService {
         parameters
       );
       console.log(`Unstaked ${amount} MST tokens successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
     } catch (error) {
       console.error('Error unstaking tokens:', error);
+      return 'ERROR';
     }
   }
 
@@ -202,11 +207,11 @@ export class HederaService {
     accountId: string,
     privateKey: string,
     contractId: string
-  ) {
+  ): Promise<string> {
     try {
       console.log(`Claiming rewards for account: ${accountId}`);
       const parameters = new ContractFunctionParameters();
-      await this.executeContractFunction(
+      const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
         contractId,
@@ -214,8 +219,10 @@ export class HederaService {
         parameters
       );
       console.log(`Claimed rewards successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
     } catch (error) {
       console.error('Error claiming rewards:', error);
+      return 'ERROR';
     }
   }
 
@@ -227,10 +234,13 @@ export class HederaService {
     amount: number
   ): Promise<string> {
     try {
-      console.log(`Transferring ${amount} Mst tokens to ${recipientAddress}`);
+      const recipientAccountIdEvm = await this.fetchEtherAddress(
+        recipientAddress
+      );
+      console.log(`Transferring ${amount} MST tokens to ${recipientAddress}`);
       const parameters = new ContractFunctionParameters()
         .addUint64(amount)
-        .addAddress(recipientAddress);
+        .addAddress(recipientAccountIdEvm);
       const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
@@ -238,11 +248,11 @@ export class HederaService {
         'transferMstTokens',
         parameters
       );
-      console.log(`Transferred ${amount} Mst tokens successfully.`);
-      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
+      console.log(`Transferred ${amount} MST tokens successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
     } catch (error) {
-      console.error('Error transferring Mst tokens:', error);
-      return 'ERROR'; // Return error status
+      console.error('Error transferring MST tokens:', error);
+      return 'ERROR';
     }
   }
 
@@ -254,13 +264,13 @@ export class HederaService {
     amount: number
   ): Promise<string> {
     try {
-      console.log(
-        `Transferring ${amount} hey i m in hedera service ${contractId} Mpt tokens to ${recipientAddress}`
+      const recipientAccountIdEvm = await this.fetchEtherAddress(
+        recipientAddress
       );
       console.log(`Transferring ${amount} MPT tokens to ${recipientAddress}`);
       const parameters = new ContractFunctionParameters()
         .addUint64(amount)
-        .addAddress(recipientAddress);
+        .addAddress(recipientAccountIdEvm);
       const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
@@ -269,17 +279,56 @@ export class HederaService {
         parameters
       );
       console.log(`Transferred ${amount} MPT tokens successfully.`);
-      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR';
     } catch (error) {
       console.error('Error transferring MPT tokens:', error);
-      return 'ERROR'; // Return error status
+      return 'ERROR';
+    }
+  }
+
+  async getStakesAndRewards(
+    accountId: string,
+    privateKey: string,
+    contractId: string
+  ): Promise<{ stakes: number; rewards: number }> {
+    try {
+      const accountEvm = await this.fetchEtherAddress(accountId);
+      const stakesResult = await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'getStakes',
+        new ContractFunctionParameters().addAddress(accountEvm)
+      );
+
+      const rewardsResult = await this.executeContractFunction(
+        accountId,
+        privateKey,
+        contractId,
+        'getMyReward',
+        new ContractFunctionParameters()
+      );
+
+      const stakes = stakesResult as unknown as number;
+      const rewards = rewardsResult as unknown as number;
+
+      return { stakes, rewards };
+    } catch (error) {
+      console.error(
+        `Error getting stakes and rewards for account ${accountId}:`,
+        error
+      );
+      return { stakes: 0, rewards: 0 };
     }
   }
 
   async getStakes(accountId: string, contractId: string): Promise<number> {
     try {
+      const accountEvm = await this.fetchEtherAddress(accountId);
       console.log(`Fetching stakes for account: ${accountId}`);
-      const parameters = new ContractFunctionParameters().addAddress(accountId);
+      const parameters = new ContractFunctionParameters().addAddress(
+        accountEvm
+      );
       const result = await this.executeContractFunction(
         accountId,
         '',
@@ -296,6 +345,7 @@ export class HederaService {
 
   async getRewards(accountId: string, contractId: string): Promise<number> {
     try {
+      const accountEvm = await this.fetchEtherAddress(accountId);
       console.log(`Fetching rewards for account: ${accountId}`);
       const parameters = new ContractFunctionParameters().addAddress(accountId);
       const result = await this.executeContractFunction(

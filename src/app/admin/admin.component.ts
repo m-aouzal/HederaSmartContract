@@ -252,18 +252,14 @@ export class AdminComponent implements OnInit {
 
       this.transferSpinner = true; // Show spinner
       try {
-        const etherAddress = await this.hederaService.fetchEtherAddress(
-          recipientAccountId
-        );
-        console.log(`Fetched Ether address: ${etherAddress}`);
-
+       
         let receiptStatus;
         if (tokenType === 'MST') {
           receiptStatus = await this.hederaService.transferMstTokens(
             this.accountId,
             this.privateKey,
             this.contractId,
-            etherAddress,
+            recipientAccountId,
             transferAmount
           );
         } else {
@@ -271,7 +267,7 @@ export class AdminComponent implements OnInit {
             this.accountId,
             this.privateKey,
             this.contractId,
-            etherAddress,
+            recipientAccountId,
             transferAmount
           );
         }
