@@ -64,7 +64,7 @@ export class HederaService {
     privateKey: string,
     tokenId: string,
     amount: number
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       console.log(`Minting ${amount} tokens for token ID: ${tokenId}`);
       const operatorId = AccountId.fromString(accountId);
@@ -95,8 +95,10 @@ export class HederaService {
       }
 
       console.log(`Minted ${amount} tokens successfully.`);
+      return receipt.status.toString();
     } catch (error) {
       console.error('Error minting tokens:', error);
+      throw error;
     }
   }
 

@@ -35,6 +35,7 @@ export class AdminComponent implements OnInit {
   queryForm: FormGroup;
   deleteForm: FormGroup;
   transferForm: FormGroup; // Add transfer form
+  mintForm: FormGroup; // Add mint form
   showForm = false;
   showTokenForm = false;
   showDeleteAccountForm = false;
@@ -52,9 +53,8 @@ export class AdminComponent implements OnInit {
   mptTokenId: string = '';
   accountId: string = '';
   privateKey: string = '';
-  mintMstAmount: number = 0;
-  mintMptAmount: number = 0;
-  transferSpinner: boolean = false; // Add spinner flag
+  mintSpinner: boolean = false; // Add spinner flag
+  transferSpinner: boolean = false;
   contractId: string = '0.0.4396021';
 
   accountIdValidator(): ValidatorFn {
@@ -63,6 +63,7 @@ export class AdminComponent implements OnInit {
       return valid ? null : { invalidAccountId: true };
     };
   }
+
   ngOnInit() {
     console.log('AdminComponent initialized');
     this.loadAccounts();
@@ -97,6 +98,11 @@ export class AdminComponent implements OnInit {
         [Validators.required, this.accountIdValidator()],
       ],
       transferAmount: [0, [Validators.required, Validators.min(1)]],
+      tokenType: ['MST', Validators.required],
+    });
+
+    this.mintForm = this.fb.group({
+      amount: [0, [Validators.required, Validators.min(1)]],
       tokenType: ['MST', Validators.required],
     });
   }
@@ -188,41 +194,45 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  async mintMstToken(amount: number) {
-    console.log(`Minting ${amount} MST tokens...`);
-    try {
-      console.log(
-        `Account ID: ${this.accountId}, Private Key: ${this.privateKey}, Token ID: ${this.mstTokenId}`
-      );
-      await this.hederaService.mintToken(
-        this.accountId,
-        this.privateKey,
-        this.mstTokenId,
-        amount
-      );
-      console.log(`Minted ${amount} MST tokens.`);
-      this.getMstBalance(); // Refresh MST balance
-    } catch (error) {
-      console.error('Error minting MST tokens:', error);
-    }
-  }
+  async mintTokens() {
+    if (this.mintForm.valid) {
+      const { amount, tokenType } = this.mintForm.value;
+      this.mintSpinner = true; // Show spinner
+      try {
+        const tokenId = tokenType === 'MST' ? this.mstTokenId : this.mptTokenId;
+        const receiptStatus = await this.hederaService.mintToken(
+          this.accountId,
+          this.privateKey,
+          tokenId,
+          amount
+        );
 
-  async mintMptToken(amount: number) {
-    console.log(`Minting ${amount} MPT tokens...`);
-    try {
-      console.log(
-        `Account ID: ${this.accountId}, Private Key: ${this.privateKey}, Token ID: ${this.mptTokenId}`
-      );
-      await this.hederaService.mintToken(
-        this.accountId,
-        this.privateKey,
-        this.mptTokenId,
-        amount
-      );
-      console.log(`Minted ${amount} MPT tokens.`);
-      this.getMptBalance(); // Refresh MPT balance
-    } catch (error) {
-      console.error('Error minting MPT tokens:', error);
+        await new Promise((resolve) => setTimeout(resolve, 3500));
+
+        if (tokenType === 'MST') {
+          await this.getMstBalance(); // Refresh MST balance
+        } else {
+          await this.getMptBalance(); // Refresh MPT balance
+        }
+
+        if (receiptStatus === 'SUCCESS') {
+          alert(`Minting of ${amount} ${tokenType} tokens was successful.`);
+        } else {
+          alert(
+            `Minting of ${amount} ${tokenType} tokens failed. Status: ${receiptStatus}`
+          );
+        }
+      } catch (error) {
+        console.error(`Error minting ${tokenType} tokens:`, error);
+        const errorMessage = error.message.split('at')[0].trim();
+        alert(`Error minting ${tokenType} tokens. ${errorMessage}`);
+      } finally {
+        this.mintSpinner = false; // Hide spinner
+        this.mintForm.reset({
+          amount: 0,
+          tokenType: 'MST',
+        }); // Clear the form with default values
+      }
     }
   }
 
