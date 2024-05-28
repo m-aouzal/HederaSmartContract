@@ -12,6 +12,7 @@ import {
 } from '@angular/forms';
 import { Account } from '../services/Account';
 import { Token } from '../services/Token';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
   selector: 'app-admin',
@@ -55,6 +56,13 @@ export class AdminComponent implements OnInit {
   mintMptAmount: number = 0;
   transferSpinner: boolean = false; // Add spinner flag
   contractId: string = '0.0.4396021';
+
+  accountIdValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const valid = /^0\.0\.[0-9]{7}$/.test(control.value);
+      return valid ? null : { invalidAccountId: true };
+    };
+  }
   ngOnInit() {
     console.log('AdminComponent initialized');
     this.loadAccounts();
@@ -84,7 +92,10 @@ export class AdminComponent implements OnInit {
     });
 
     this.transferForm = this.fb.group({
-      recipientAccountId: ['', Validators.required],
+      recipientAccountId: [
+        '',
+        [Validators.required, this.accountIdValidator()],
+      ],
       transferAmount: [0, [Validators.required, Validators.min(1)]],
       tokenType: ['MST', Validators.required],
     });
@@ -219,86 +230,69 @@ export class AdminComponent implements OnInit {
     if (this.transferForm.valid) {
       const { recipientAccountId, transferAmount, tokenType } =
         this.transferForm.value;
+      const currentBalance =
+        tokenType === 'MST' ? this.mstBalance : this.mptBalance;
 
-      if (tokenType === 'MST') {
-        await this.transferMstTokens(recipientAccountId, transferAmount);
-      } else if (tokenType === 'MPT') {
-        await this.transferMptTokens(recipientAccountId, transferAmount);
+      if (currentBalance < transferAmount) {
+        alert(
+          `Insufficient balance. Maximum transferable amount: ${currentBalance}`
+        );
+        this.transferSpinner = false;
+        return;
       }
-    }
-  }
 
-  async transferMstTokens(recipientAccountId: string, transferAmount: number) {
-    const currentBalance = this.mstBalance;
+      this.transferSpinner = true; // Show spinner
+      try {
+        const etherAddress = await this.accountsService.getEtherAddress(
+          recipientAccountId
+        );
+        console.log(
+          `Fetched Ether address and transfer amount: ${etherAddress}`
+        );
+        console.log(transferAmount);
+        let receiptStatus;
+        if (tokenType === 'MST') {
+          receiptStatus = await this.hederaService.transferMstTokens(
+            this.accountId,
+            this.privateKey,
+            this.contractId,
+            etherAddress,
+            transferAmount
+          );
+        } else {
+          receiptStatus = await this.hederaService.transferMptTokens(
+            this.accountId,
+            this.privateKey,
+            this.contractId,
+            etherAddress,
+            transferAmount
+          );
+        }
+        await new Promise((resolve) => setTimeout(resolve, 3500));
 
-    if (currentBalance < transferAmount) {
-      alert(
-        `Insufficient balance. Maximum transferable amount: ${currentBalance}`
-      );
-      return;
-    }
+        await this.getBalances(); // Refresh balances
 
-    this.transferSpinner = true; // Show spinner
-    try {
-      const etherAddress = await this.dbService.getEtherAddress(
-        recipientAccountId
-      );
-      await this.hederaService.transferMstTokens(
-        this.accountId,
-        this.privateKey,
-        this.contractId,
-        etherAddress,
-        transferAmount
-      );
-      console.log(
-        `Transferred ${transferAmount} MST tokens to ${recipientAccountId}.`
-      );
-
-      // Delay for 5 seconds to allow transaction propagation
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
-      await this.getBalances(); // Refresh balances
-    } catch (error) {
-      console.error('Error transferring MST tokens:', error);
-    } finally {
-      this.transferSpinner = false; // Hide spinner
-    }
-  }
-
-  async transferMptTokens(recipientAccountId: string, transferAmount: number) {
-    const currentBalance = this.mptBalance;
-
-    if (currentBalance < transferAmount) {
-      alert(
-        `Insufficient balance. Maximum transferable amount: ${currentBalance}`
-      );
-      return;
-    }
-
-    this.transferSpinner = true; // Show spinner
-    try {
-      const etherAddress = await this.dbService.getEtherAddress(
-        recipientAccountId
-      );
-      await this.hederaService.transferMptTokens(
-        this.accountId,
-        this.privateKey,
-        this.contractId,
-        etherAddress,
-        transferAmount
-      );
-      console.log(
-        `Transferred ${transferAmount} MPT tokens to ${recipientAccountId}.`
-      );
-
-      // Delay for 5 seconds to allow transaction propagation
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
-      await this.getBalances(); // Refresh balances
-    } catch (error) {
-      console.error('Error transferring MPT tokens:', error);
-    } finally {
-      this.transferSpinner = false; // Hide spinner
+        if (receiptStatus === 'SUCCESS') {
+          alert(
+            `Transfer of ${transferAmount} ${tokenType} tokens was successful.`
+          );
+        } else {
+          alert(
+            `Transfer of ${transferAmount} ${tokenType} tokens failed. Status: ${receiptStatus}`
+          );
+        }
+      } catch (error) {
+        console.error(`Error transferring ${tokenType} tokens:`, error);
+        const errorMessage = error.message.split('at')[0].trim();
+        alert(`Error transferring ${tokenType} tokens. ${errorMessage}`);
+      } finally {
+        this.transferSpinner = false; // Hide spinner
+        this.transferForm.reset({
+          recipientAccountId: '',
+          transferAmount: 0,
+          tokenType: 'MPT',
+        }); // Clear the form with default values
+      }
     }
   }
 

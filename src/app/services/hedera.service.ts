@@ -210,22 +210,24 @@ export class HederaService {
     contractId: string,
     recipientAddress: string,
     amount: number
-  ) {
+  ): Promise<string> {
     try {
-      console.log(`Transferring ${amount} MST tokens to ${recipientAddress}`);
+      console.log(`Transferring ${amount} Mst tokens to ${recipientAddress}`);
       const parameters = new ContractFunctionParameters()
         .addUint64(amount)
         .addAddress(recipientAddress);
-      await this.executeContractFunction(
+      const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
         contractId,
         'transferMstTokens',
         parameters
       );
-      console.log(`Transferred ${amount} MST tokens successfully.`);
+      console.log(`Transferred ${amount} Mst tokens successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
     } catch (error) {
-      console.error('Error transferring MST tokens:', error);
+      console.error('Error transferring Mst tokens:', error);
+      return 'ERROR'; // Return error status
     }
   }
 
@@ -235,13 +237,16 @@ export class HederaService {
     contractId: string,
     recipientAddress: string,
     amount: number
-  ) {
+  ): Promise<string> {
     try {
+      console.log(
+        `Transferring ${amount} hey i m in hedera service ${contractId} Mpt tokens to ${recipientAddress}`
+      );
       console.log(`Transferring ${amount} MPT tokens to ${recipientAddress}`);
       const parameters = new ContractFunctionParameters()
         .addUint64(amount)
         .addAddress(recipientAddress);
-      await this.executeContractFunction(
+      const receiptStatus = await this.executeContractFunction(
         accountId,
         privateKey,
         contractId,
@@ -249,8 +254,10 @@ export class HederaService {
         parameters
       );
       console.log(`Transferred ${amount} MPT tokens successfully.`);
+      return receiptStatus === 1 ? 'SUCCESS' : 'ERROR'; // Return success or error status
     } catch (error) {
       console.error('Error transferring MPT tokens:', error);
+      return 'ERROR'; // Return error status
     }
   }
 
