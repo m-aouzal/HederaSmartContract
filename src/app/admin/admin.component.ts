@@ -153,7 +153,7 @@ export class AdminComponent implements OnInit {
       await this.getMstBalance();
       await this.getMptBalance();
       console.log(
-        `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
+        `MST Balance: ${Math.floor(this.mstBalance)}, MPT Balance: ${Math.floor(this.mptBalance)}`
       );
     } catch (error) {
       console.error('Error fetching balances:', error);

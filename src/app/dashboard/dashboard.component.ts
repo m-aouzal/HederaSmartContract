@@ -154,7 +154,12 @@ export class DashboardComponent implements OnInit {
     }
     this.stakeSpinner = true;
     try {
-
+      let rewardMessage = '';
+      if (this.stakes > 0) {
+        await this.getRewards();
+        console.log(`Rewards: ${this.rewards}`);
+        rewardMessage = ` You collected ${this.rewards} MPT tokens.`;
+      }
       const receiptStatus = await this.hederaService.stakeTokens(
         this.accountId,
         this.privateKey,
@@ -162,10 +167,11 @@ export class DashboardComponent implements OnInit {
         this.stakeAmount
       );
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
 
       if (receiptStatus === 'SUCCESS') {
-        alert(`Staked ${this.stakeAmount} MST tokens successfully.`);
+        alert(
+          `Staked ${this.stakeAmount} MST tokens successfully.${rewardMessage}`
+        );
       } else {
         alert(`Staking ${this.stakeAmount} MST tokens failed.`);
       }
@@ -192,23 +198,28 @@ export class DashboardComponent implements OnInit {
     }
     this.unstakeSpinner = true;
     try {
+      let rewardMessage = '';
+
+      await this.getRewards();
+
       const receiptStatus = await this.hederaService.unstakeTokens(
         this.accountId,
         this.privateKey,
         this.contractId,
         this.unstakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       if (receiptStatus === 'SUCCESS') {
-        alert(`Unstaked ${this.unstakeAmount} MST tokens successfully.`);
+        alert(
+          `Unstaked ${this.unstakeAmount} MST tokens successfully and you ve collected You collected ${this.rewards} MPT tokens.`
+        );
       } else {
         alert(`Unstaking ${this.unstakeAmount} MST tokens failed.`);
       }
-       await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
-       await this.getBalances();
-       await this.getStakes();
-
+      await this.getBalances();
+      await this.getStakes();
     } catch (error) {
       console.error('Error unstaking tokens:', error);
       const errorMessage = error.message.split('at')[0].trim();
@@ -234,16 +245,16 @@ export class DashboardComponent implements OnInit {
       );
       await new Promise((resolve) => setTimeout(resolve, 1000)); // 5-second delay
 
-     
-
       if (receiptStatus === 'SUCCESS') {
-        alert(`Unstaked all tokens successfully.`);
+        alert(
+          `Unstaked all tokens successfully. You collected ${this.rewards} MPT tokens.`
+        );
       } else {
         alert(`Unstaking all tokens failed.`);
       }
-       await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
-       await this.getBalances();
-       await this.getStakes();
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
+      await this.getBalances();
+      await this.getStakes();
     } catch (error) {
       console.error('Error unstaking all tokens:', error);
       const errorMessage = error.message.split('at')[0].trim();
@@ -278,8 +289,6 @@ export class DashboardComponent implements OnInit {
 
       await this.getBalances();
       await this.getStakes();
-
-      
     } catch (error) {
       console.error('Error claiming rewards:', error);
       const errorMessage = error.message.split('at')[0].trim();
@@ -309,19 +318,17 @@ export class DashboardComponent implements OnInit {
         etherAddress,
         this.transactionAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
-        if (receiptStatus === 'SUCCESS') {
-          alert(
-            `Transaction of ${this.transactionAmount} MPT tokens successful.`
-          );
-        } else {
-          alert(`Transaction failed. Status: ${receiptStatus}`);
-        }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (receiptStatus === 'SUCCESS') {
+        alert(
+          `Transaction of ${this.transactionAmount} MPT tokens successful.`
+        );
+      } else {
+        alert(`Transaction failed. Status: ${receiptStatus}`);
+      }
       await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
       await this.getBalances();
-
-    
     } catch (error) {
       console.error('Error sending transaction:', error);
       const errorMessage = error.message.split('at')[0].trim();
