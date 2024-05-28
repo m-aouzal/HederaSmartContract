@@ -10,32 +10,35 @@
     <p>Stakes: {{ stakes }}</p>
   </section>
 
-  <section class="send-tokens">
-    <h3>Send Tokens</h3>
-    <form (ngSubmit)="sendTransaction()">
-      <div class="form-group">
-        <label for="recipientAccountId">Recipient Account ID</label>
-        <input
-          type="text"
-          id="recipientAccountId"
-          [(ngModel)]="recipientAccountId"
-          name="recipientAccountId"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="transactionAmount">Amount</label>
-        <input
-          type="number"
-          id="transactionAmount"
-          [(ngModel)]="transactionAmount"
-          name="transactionAmount"
-          required
-        />
-      </div>
-      <button type="submit">Send</button>
-    </form>
-  </section>
+<section class="send-tokens">
+  <h3>Send Tokens</h3>
+  <form (ngSubmit)="sendTransaction()">
+    <div class="form-group">
+      <label for="recipientAccountId">Recipient Account ID</label>
+      <input
+        type="text"
+        id="recipientAccountId"
+        [(ngModel)]="recipientAccountId"
+        name="recipientAccountId"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="transactionAmount">Amount</label>
+      <input
+        type="number"
+        id="transactionAmount"
+        [(ngModel)]="transactionAmount"
+        name="transactionAmount"
+        required
+      />
+    </div>
+    <button type="submit">
+      Send
+      <span *ngIf="sendSpinner" class="spinner-border spinner-border-sm ms-2"></span>
+    </button>
+  </form>
+</section>
 
   <section class="stake-tokens">
     <h3>Stake Tokens</h3>

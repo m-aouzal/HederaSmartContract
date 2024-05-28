@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit {
   claimSpinner: boolean = false; // Spinner flag for claiming rewards
   stakeSpinner: boolean = false; // Spinner flag for staking tokens
   unstakeSpinner: boolean = false; // Spinner flag for unstaking tokens
+  sendSpinner: boolean = false; 
 
   constructor(
     private authService: AuthService,
@@ -94,11 +95,11 @@ export class DashboardComponent implements OnInit {
           this.accountId,
           this.mstTokenId
         )) || 0;
-        this.mptBalance =
-          (await this.hederaService.getTokenBalance(
-            this.accountId,
-            this.mptTokenId
-          )) || 0;
+      this.mptBalance =
+        (await this.hederaService.getTokenBalance(
+          this.accountId,
+          this.mptTokenId
+        )) || 0;
       console.log(
         `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
       );
@@ -257,13 +258,13 @@ export class DashboardComponent implements OnInit {
   }
 
   async sendTransaction() {
-    console.log(
-      `Sending ${this.transactionAmount} MPT tokens to ${this.recipientAccountId}`
-    );
+    if (this.transactionAmount > this.mptBalance) {
+      alert(`Insufficient balance. Maximum transferable amount: ${this.mptBalance}`);
+      return;
+    }
+    this.sendSpinner = true; // Show spinner
     try {
-      const etherAddress = await this.hederaService.fetchEtherAddress(
-        this.recipientAccountId
-      );
+      const etherAddress = await this.hederaService.fetchEtherAddress(this.recipientAccountId);
       console.log(`Fetched Ether address: ${etherAddress}`);
       const receiptStatus = await this.hederaService.transferMptTokens(
         this.accountId,
@@ -277,9 +278,7 @@ export class DashboardComponent implements OnInit {
       await this.getBalances();
 
       if (receiptStatus === 'SUCCESS') {
-        alert(
-          `Transaction of ${this.transactionAmount} MPT tokens successful.`
-        );
+        alert(`Transaction of ${this.transactionAmount} MPT tokens successful.`);
       } else {
         alert(`Transaction failed. Status: ${receiptStatus}`);
       }
@@ -287,6 +286,10 @@ export class DashboardComponent implements OnInit {
       console.error('Error sending transaction:', error);
       const errorMessage = error.message.split('at')[0].trim();
       alert(`Error sending transaction. ${errorMessage}`);
+    } finally {
+      this.sendSpinner = false; // Hide spinner
+      this.recipientAccountId = ''; // Reset form values
+      this.transactionAmount = 0;
     }
   }
 
