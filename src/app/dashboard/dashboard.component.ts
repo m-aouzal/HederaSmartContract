@@ -166,7 +166,7 @@ export class DashboardComponent implements OnInit {
         this.contractId,
         this.stakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 3500));
 
       if (receiptStatus === 'SUCCESS') {
         alert(
@@ -175,7 +175,6 @@ export class DashboardComponent implements OnInit {
       } else {
         alert(`Staking ${this.stakeAmount} MST tokens failed.`);
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
       await this.getBalances();
       await this.getStakes();
@@ -208,7 +207,7 @@ export class DashboardComponent implements OnInit {
         this.contractId,
         this.unstakeAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 3500));
       if (receiptStatus === 'SUCCESS') {
         alert(
           `Unstaked ${this.unstakeAmount} MST tokens successfully and you ve collected You collected ${this.rewards} MPT tokens.`
@@ -216,7 +215,6 @@ export class DashboardComponent implements OnInit {
       } else {
         alert(`Unstaking ${this.unstakeAmount} MST tokens failed.`);
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
       await this.getBalances();
       await this.getStakes();
@@ -243,7 +241,7 @@ export class DashboardComponent implements OnInit {
         this.privateKey,
         this.contractId
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 5-second delay
+      await new Promise((resolve) => setTimeout(resolve, 3500)); // 5-second delay
 
       if (receiptStatus === 'SUCCESS') {
         alert(
@@ -252,7 +250,7 @@ export class DashboardComponent implements OnInit {
       } else {
         alert(`Unstaking all tokens failed.`);
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
+
       await this.getBalances();
       await this.getStakes();
     } catch (error) {
@@ -277,7 +275,7 @@ export class DashboardComponent implements OnInit {
         this.privateKey,
         this.contractId
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 3500));
       if (receiptStatus === 'SUCCESS') {
         alert(
           `Congratulations! You have collected ${this.rewards} MPT tokens.`
@@ -285,7 +283,6 @@ export class DashboardComponent implements OnInit {
       } else {
         alert(`Claiming rewards failed.`);
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
       await this.getBalances();
       await this.getStakes();
@@ -318,7 +315,7 @@ export class DashboardComponent implements OnInit {
         etherAddress,
         this.transactionAmount
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 3500));
       if (receiptStatus === 'SUCCESS') {
         alert(
           `Transaction of ${this.transactionAmount} MPT tokens successful.`
@@ -326,7 +323,6 @@ export class DashboardComponent implements OnInit {
       } else {
         alert(`Transaction failed. Status: ${receiptStatus}`);
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000)); // 5-second delay
 
       await this.getBalances();
     } catch (error) {
