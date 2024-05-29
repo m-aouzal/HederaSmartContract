@@ -4,7 +4,6 @@ import { DataBaseService } from '../services/dataBase.service';
 import { HederaService } from '../services/hedera.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { firstValueFrom } from 'rxjs';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
@@ -99,16 +98,16 @@ export class DashboardComponent implements OnInit {
           this.accountId,
           this.mptTokenId
         )) || 0;
-      this.mstBalance =
+      this.mstBalance =Math.floor(
         (await this.hederaService.getTokenBalance(
           this.accountId,
           this.mstTokenId
-        )) || 0;
-      this.mptBalance =
+        ))) || 0;
+      this.mptBalance =Math.floor(
         (await this.hederaService.getTokenBalance(
           this.accountId,
           this.mptTokenId
-        )) || 0;
+        ))) || 0;
       console.log(
         `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
       );
