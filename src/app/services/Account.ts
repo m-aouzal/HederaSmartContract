@@ -5,4 +5,5 @@ export interface Account {
   email: string;
   Ether:string;
   alias:string;
+  password:string;
 }

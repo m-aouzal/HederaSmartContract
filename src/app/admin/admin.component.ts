@@ -13,6 +13,7 @@ import {
 import { Account } from '../services/Account';
 import { Token } from '../services/Token';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -22,11 +23,17 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
   styleUrls: ['./admin.component.css'],
 })
 export class AdminComponent implements OnInit {
+  passwordFieldType: string = 'password';
+  confirmPasswordFieldType: string = 'password';
+  errorMessage: string | null = null;
+  authFailed: boolean = false;
+
   constructor(
     public authService: AuthService,
     private fb: FormBuilder,
     private hederaService: HederaService,
-    private dbService: DataBaseService
+    private dbService: DataBaseService,
+    private router: Router
   ) {} // Inject HederaService
 
   accountsService = inject(DataBaseService);
@@ -70,12 +77,17 @@ export class AdminComponent implements OnInit {
     this.loadTokens();
     this.getAccountDetailsByAlias('Owner'); // Fetch account details
 
-    this.accountForm = this.fb.group({
-      accountId: ['', Validators.required],
-      accountPrivateKey: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      alias: ['', Validators.required],
-    });
+    this.accountForm = this.fb.group(
+      {
+        accountId: ['', Validators.required],
+        accountPrivateKey: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', Validators.required],
+        alias: ['', Validators.required],
+      },
+      { validators: this.passwordMatchValidator }
+    );
 
     this.tokenForm = this.fb.group({
       tokenName: ['', Validators.required],
@@ -104,6 +116,59 @@ export class AdminComponent implements OnInit {
       amount: [0, [Validators.required, Validators.min(1)]],
       tokenType: ['MST', Validators.required],
     });
+  }
+
+  passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordFieldType =
+      this.passwordFieldType === 'password' ? 'text' : 'password';
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.confirmPasswordFieldType =
+      this.confirmPasswordFieldType === 'password' ? 'text' : 'password';
+  }
+
+  addAccount() {
+    if (this.accountForm.valid) {
+      const account: Account = this.accountForm.value;
+      this.accountsService.addAccount(account).subscribe({
+        next: (id) => {
+          console.log('Account added with ID:', id);
+          alert('Account added successfully.');
+          this.accountForm.reset();
+          this.showForm = false;
+          setTimeout(() => this.loadAccounts(), 2000); // Fetch accounts after 2 seconds
+        },
+        error: (err) => {
+          console.error('Error adding account:', err);
+          this.errorMessage = err.message;
+          this.authFailed = true;
+        },
+      });
+    }
+  }
+
+  signup() {
+    if (this.accountForm.valid) {
+      const { alias, email, password } = this.accountForm.value;
+      this.authService.signup(alias, email, password).subscribe({
+        next: () => {
+          console.log('User signed up successfully');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          console.error('Error signing up user:', err);
+          this.errorMessage = err.message;
+          this.authFailed = true;
+        },
+      });
+    }
   }
 
   async getAccountDetailsByAlias(alias: string) {
@@ -148,7 +213,6 @@ export class AdminComponent implements OnInit {
   async getBalances() {
     console.log('Fetching token balances...');
     try {
-      await this.getMstBalance();
       await this.getMstBalance();
       await this.getMptBalance();
       console.log(
@@ -325,18 +389,6 @@ export class AdminComponent implements OnInit {
   toggleTransferForm() {
     this.showTransferForm = !this.showTransferForm;
     console.log(`Show transfer form toggled: ${this.showTransferForm}`);
-  }
-
-  addAccount() {
-    if (this.accountForm.valid) {
-      const account: Account = this.accountForm.value;
-      this.accountsService.addAccount(account).subscribe((id) => {
-        console.log('Account added with ID:', id);
-        this.accountForm.reset();
-        this.showForm = false;
-        this.loadAccounts(); // Assuming you have a method to load accounts
-      });
-    }
   }
 
   queryAccount() {

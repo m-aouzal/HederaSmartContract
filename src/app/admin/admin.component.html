@@ -42,8 +42,109 @@
           formControlName="email"
           type="email"
         />
+        <div
+          class="error-message"
+          *ngIf="
+            accountForm.get('email').hasError('required') &&
+            accountForm.get('email').touched
+          "
+        >
+          Email is required.
+        </div>
+        <div
+          class="error-message"
+          *ngIf="
+            accountForm.get('email').hasError('email') &&
+            accountForm.get('email').touched
+          "
+        >
+          Invalid email format.
+        </div>
       </div>
-      
+      <div class="form-group mb-3">
+        <label for="password">Password</label>
+        <div class="input-group">
+          <input
+            id="password"
+            class="form-control"
+            formControlName="password"
+            [type]="passwordFieldType"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="togglePasswordVisibility()"
+          >
+            <i
+              [ngClass]="
+                passwordFieldType === 'password'
+                  ? 'fa fa-eye'
+                  : 'fa fa-eye-slash'
+              "
+            ></i>
+          </button>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="
+            accountForm.get('password').hasError('required') &&
+            accountForm.get('password').touched
+          "
+        >
+          Password is required.
+        </div>
+        <div
+          class="error-message"
+          *ngIf="
+            accountForm.get('password').hasError('minlength') &&
+            accountForm.get('password').touched
+          "
+        >
+          Password must be at least 6 characters long.
+        </div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="input-group">
+          <input
+            id="confirmPassword"
+            class="form-control"
+            formControlName="confirmPassword"
+            [type]="confirmPasswordFieldType"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="toggleConfirmPasswordVisibility()"
+          >
+            <i
+              [ngClass]="
+                confirmPasswordFieldType === 'password'
+                  ? 'fa fa-eye'
+                  : 'fa fa-eye-slash'
+              "
+            ></i>
+          </button>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="
+            accountForm.get('confirmPassword').hasError('required') &&
+            accountForm.get('confirmPassword').touched
+          "
+        >
+          Confirm Password is required.
+        </div>
+        <div
+          class="error-message"
+          *ngIf="
+            accountForm.hasError('passwordMismatch') &&
+            accountForm.get('confirmPassword').touched
+          "
+        >
+          Passwords do not match.
+        </div>
+      </div>
       <div class="form-group mb-3">
         <label for="alias">Alias</label>
         <input
@@ -152,7 +253,6 @@
         </button>
       </p>
       <p><strong>Email:</strong> {{ queriedAccount.email }}</p>
-      
     </div>
     <div
       *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty"
@@ -228,7 +328,7 @@
               Copy
             </button>
           </td>
-          
+
           <td>{{ account.email }}</td>
           <td>
             <button
