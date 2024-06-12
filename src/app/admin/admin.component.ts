@@ -74,7 +74,6 @@ export class AdminComponent implements OnInit {
       accountId: ['', Validators.required],
       accountPrivateKey: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      Ether: ['', Validators.required],
       alias: ['', Validators.required],
     });
 
@@ -153,7 +152,9 @@ export class AdminComponent implements OnInit {
       await this.getMstBalance();
       await this.getMptBalance();
       console.log(
-        `MST Balance: ${Math.floor(this.mstBalance)}, MPT Balance: ${Math.floor(this.mptBalance)}`
+        `MST Balance: ${Math.floor(this.mstBalance)}, MPT Balance: ${Math.floor(
+          this.mptBalance
+        )}`
       );
     } catch (error) {
       console.error('Error fetching balances:', error);
@@ -235,6 +236,7 @@ export class AdminComponent implements OnInit {
       }
     }
   }
+
   async transferTokens() {
     if (this.transferForm.valid) {
       const { recipientAccountId, transferAmount, tokenType } =
@@ -252,7 +254,6 @@ export class AdminComponent implements OnInit {
 
       this.transferSpinner = true; // Show spinner
       try {
-       
         let receiptStatus;
         if (tokenType === 'MST') {
           receiptStatus = await this.hederaService.transferMstTokens(
@@ -409,5 +410,9 @@ export class AdminComponent implements OnInit {
         console.error('Could not copy text: ', err);
       }
     );
+  }
+
+  maskValue(value: string): string {
+    return value ? value.substring(0, 4) + '****' : '';
   }
 }

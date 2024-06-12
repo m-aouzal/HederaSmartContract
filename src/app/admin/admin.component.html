@@ -43,15 +43,7 @@
           type="email"
         />
       </div>
-      <div class="form-group mb-3">
-        <label for="Ether">Ether Address</label>
-        <input
-          id="Ether"
-          class="form-control"
-          formControlName="Ether"
-          type="text"
-        />
-      </div>
+      
       <div class="form-group mb-3">
         <label for="alias">Alias</label>
         <input
@@ -151,7 +143,7 @@
       </p>
       <p>
         <strong>Account Private Key:</strong>
-        {{ queriedAccount.accountPrivateKey }}
+        {{ maskValue(queriedAccount.accountPrivateKey) }}
         <button
           class="btn btn-outline-secondary btn-sm"
           (click)="copyToClipboard(queriedAccount.accountPrivateKey)"
@@ -160,6 +152,7 @@
         </button>
       </p>
       <p><strong>Email:</strong> {{ queriedAccount.email }}</p>
+      
     </div>
     <div
       *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty"
@@ -167,102 +160,6 @@
     >
       <p>No account found with this email.</p>
     </div>
-  </div>
-
-  <div class="card p-4">
-    <h2 class="mb-4">All Accounts</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">Alias</th>
-          <th scope="col">Account ID</th>
-          <th scope="col">Account Private Key</th>
-          <th scope="col">Account EtherAddress</th>
-          <th scope="col">Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let account of accounts">
-          <td>
-            {{ account.alias }}
-          </td>
-          <td>
-            {{ account.accountId }}
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              (click)="copyToClipboard(account.accountId)"
-            >
-              Copy
-            </button>
-          </td>
-          <td>
-            {{ account.accountPrivateKey }}
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              (click)="copyToClipboard(account.accountPrivateKey)"
-            >
-              Copy
-            </button>
-          </td>
-          <td>
-            {{ account.Ether }}
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              (click)="copyToClipboard(account.Ether)"
-            >
-              Copy
-            </button>
-          </td>
-          <td>{{ account.email }}</td>
-          <td>
-            <button
-              class="btn btn-danger"
-              (click)="confirmDeleteAccount(account.id)"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card p-4">
-    <h2 class="mb-4">All Tokens</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">Token Name</th>
-          <th scope="col">Token Symbol</th>
-          <th scope="col">Token ID</th>
-          <th scope="col">EtherAddress</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let token of tokens">
-          <td>{{ token.tokenName }}</td>
-          <td>{{ token.tokenSymbol }}</td>
-          <td>
-            {{ token.tokenId }}
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              (click)="copyToClipboard(token.tokenId)"
-            >
-              Copy
-            </button>
-          </td>
-          <td>
-            {{ token.tokenEther }}
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              (click)="copyToClipboard(token.tokenEther)"
-            >
-              Copy
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
   <div class="card p-4 mb-4">
@@ -296,6 +193,92 @@
         ></span>
       </button>
     </form>
+  </div>
+
+  <div class="card p-4">
+    <h2 class="mb-4">All Accounts</h2>
+    <table class="table table-striped table-responsive">
+      <thead>
+        <tr>
+          <th scope="col">Alias</th>
+          <th scope="col">Account ID</th>
+          <th scope="col">Account Private Key</th>
+          <th scope="col">Ether Address</th>
+          <th scope="col">Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let account of accounts">
+          <td>{{ account.alias }}</td>
+          <td>
+            {{ account.accountId }}
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              (click)="copyToClipboard(account.accountId)"
+            >
+              Copy
+            </button>
+          </td>
+          <td>
+            {{ maskValue(account.accountPrivateKey) }}
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              (click)="copyToClipboard(account.accountPrivateKey)"
+            >
+              Copy
+            </button>
+          </td>
+          
+          <td>{{ account.email }}</td>
+          <td>
+            <button
+              class="btn btn-danger"
+              (click)="confirmDeleteAccount(account.id)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card p-4">
+    <h2 class="mb-4">All Tokens</h2>
+    <table class="table table-striped table-responsive">
+      <thead>
+        <tr>
+          <th scope="col">Token Name</th>
+          <th scope="col">Token Symbol</th>
+          <th scope="col">Token ID</th>
+          <th scope="col">Ether Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let token of tokens">
+          <td>{{ token.tokenName }}</td>
+          <td>{{ token.tokenSymbol }}</td>
+          <td>
+            {{ token.tokenId }}
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              (click)="copyToClipboard(token.tokenId)"
+            >
+              Copy
+            </button>
+          </td>
+          <td>
+            {{ maskValue(token.tokenEther) }}
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              (click)="copyToClipboard(token.tokenEther)"
+            >
+              Copy
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div
