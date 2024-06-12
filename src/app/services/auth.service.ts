@@ -85,6 +85,6 @@ export class AuthService {
 
   isAdmin(): boolean {
     const currentUser = this.currentUserSig();
-    return currentUser ? currentUser.email === 'aouzal1999@gmail.com' : false;
+    return currentUser ? currentUser.email === 'admin@hedera.com' : false;
   }
 }

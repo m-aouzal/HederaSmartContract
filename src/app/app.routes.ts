@@ -8,7 +8,7 @@ import { AdminComponent } from './admin/admin.component';
 import { AdminGuard } from './services/admin.guard';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
-  { path: 'signup', component: SignUpComponent, canActivate: [LoginGuard] },
+  //{ path: 'signup', component: SignUpComponent, canActivate: [LoginGuard] },
   {
     path: 'dashboard',
     component: DashboardComponent,

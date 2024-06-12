@@ -1,13 +1,6 @@
 <div class="admin-container container mt-5">
   <h1 class="mb-4">Admin Page</h1>
   <p>Welcome, Admin!</p>
-  <button
-    class="btn btn-danger mb-4"
-    *ngIf="authService.getAuthStatus()"
-    (click)="authService.logout()"
-  >
-    Logout
-  </button>
 
   <h3>Account Balances</h3>
   <p>MST Balance: {{ mstBalance }}</p>
@@ -78,46 +71,55 @@
     </form>
   </div>
 
-<div *ngIf="showTransferForm" class="card p-4 mb-4">
-  <form [formGroup]="transferForm" (ngSubmit)="transferTokens()">
-    <div class="form-group mb-3">
-      <label for="recipientAccountId">Recipient Account ID</label>
-      <input
-        id="recipientAccountId"
-        class="form-control"
-        formControlName="recipientAccountId"
-        type="text"
-      />
-      <div *ngIf="transferForm.controls['recipientAccountId'].invalid && transferForm.controls['recipientAccountId'].touched" class="text-danger">
-        Invalid Account ID. 
+  <div *ngIf="showTransferForm" class="card p-4 mb-4">
+    <form [formGroup]="transferForm" (ngSubmit)="transferTokens()">
+      <div class="form-group mb-3">
+        <label for="recipientAccountId">Recipient Account ID</label>
+        <input
+          id="recipientAccountId"
+          class="form-control"
+          formControlName="recipientAccountId"
+          type="text"
+        />
+        <div
+          *ngIf="
+            transferForm.controls['recipientAccountId'].invalid &&
+            transferForm.controls['recipientAccountId'].touched
+          "
+          class="text-danger"
+        >
+          Invalid Account ID.
+        </div>
       </div>
-    </div>
-    <div class="form-group mb-3">
-      <label for="transferAmount">Transfer Amount</label>
-      <input
-        id="transferAmount"
-        class="form-control"
-        formControlName="transferAmount"
-        type="number"
-      />
-    </div>
-    <div class="form-group mb-3">
-      <label for="tokenType">Token Type</label>
-      <select id="tokenType" class="form-control" formControlName="tokenType">
-        <option value="MST">MST</option>
-        <option value="MPT">MPT</option>
-      </select>
-    </div>
-    <button
-      type="submit"
-      class="btn btn-primary"
-      [disabled]="transferForm.invalid"
-    >
-      Transfer
-      <span *ngIf="transferSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-    </button>
-  </form>
-</div>
+      <div class="form-group mb-3">
+        <label for="transferAmount">Transfer Amount</label>
+        <input
+          id="transferAmount"
+          class="form-control"
+          formControlName="transferAmount"
+          type="number"
+        />
+      </div>
+      <div class="form-group mb-3">
+        <label for="tokenType">Token Type</label>
+        <select id="tokenType" class="form-control" formControlName="tokenType">
+          <option value="MST">MST</option>
+          <option value="MPT">MPT</option>
+        </select>
+      </div>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="transferForm.invalid"
+      >
+        Transfer
+        <span
+          *ngIf="transferSpinner"
+          class="spinner-border spinner-border-sm ms-2"
+        ></span>
+      </button>
+    </form>
+  </div>
 
   <div class="card p-4 mb-4">
     <h2 class="mb-4">Query Account</h2>
@@ -263,35 +265,38 @@
     </table>
   </div>
 
-<div class="card p-4 mb-4">
-  <h2 class="mb-4">Mint Tokens</h2>
-  <form [formGroup]="mintForm" (ngSubmit)="mintTokens()">
-    <div class="form-group mb-3">
-      <label for="mintAmount">Amount</label>
-      <input
-        id="mintAmount"
-        class="form-control"
-        formControlName="amount"
-        type="number"
-      />
-    </div>
-    <div class="form-group mb-3">
-      <label for="tokenType">Token Type</label>
-      <select id="tokenType" class="form-control" formControlName="tokenType">
-        <option value="MST">MST</option>
-        <option value="MPT">MPT</option>
-      </select>
-    </div>
-    <button
-      type="submit"
-      class="btn btn-primary"
-      [disabled]="mintForm.invalid || mintSpinner"
-    >
-      Mint Tokens
-      <span *ngIf="mintSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-    </button>
-  </form>
-</div>
+  <div class="card p-4 mb-4">
+    <h2 class="mb-4">Mint Tokens</h2>
+    <form [formGroup]="mintForm" (ngSubmit)="mintTokens()">
+      <div class="form-group mb-3">
+        <label for="mintAmount">Amount</label>
+        <input
+          id="mintAmount"
+          class="form-control"
+          formControlName="amount"
+          type="number"
+        />
+      </div>
+      <div class="form-group mb-3">
+        <label for="tokenType">Token Type</label>
+        <select id="tokenType" class="form-control" formControlName="tokenType">
+          <option value="MST">MST</option>
+          <option value="MPT">MPT</option>
+        </select>
+      </div>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="mintForm.invalid || mintSpinner"
+      >
+        Mint Tokens
+        <span
+          *ngIf="mintSpinner"
+          class="spinner-border spinner-border-sm ms-2"
+        ></span>
+      </button>
+    </form>
+  </div>
 
   <div
     *ngIf="showDeleteAccountForm || showDeleteTokenForm"
