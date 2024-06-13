@@ -1,10 +1,29 @@
 <div class="admin-container container mt-5">
-  <h1 class="mb-4">Admin Page</h1>
-  <p>Welcome, Admin!</p>
+  <div class="container text-center my-4 p-4 bg-light border rounded">
+    <h1 class="mb-3">Welcome Back, Admin!</h1>
+    <p class="lead">
+      We're glad to have you here. Ready to manage your tokens?
+    </p>
+  </div>
 
-  <h3>Account Balances</h3>
-  <p>MST Balance: {{ mstBalance }}</p>
-  <p>MPT Balance: {{ mptBalance }}</p>
+<div class="container my-4">
+  <div class="card p-3">
+    <h3 class="mb-3">Account Balances</h3>
+    <table class="table table-bordered text-center">
+      <tbody>
+        <tr>
+          <th scope="row" class="font-weight-bold">MST Balance</th>
+          <td class="font-weight-bold">{{ mstBalance }}</td>
+        </tr>
+        <tr>
+          <th scope="row" class="font-weight-bold">MPT Balance</th>
+          <td class="font-weight-bold">{{ mptBalance }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
   <div class="d-flex mb-4">
     <button class="btn btn-primary mx-2" (click)="toggleForm()">
@@ -251,21 +270,32 @@
     </form>
   </div>
 
+ <div class="container mt-4">
   <div class="card p-4 mb-4">
     <h2 class="mb-4">Query Account</h2>
     <form [formGroup]="queryForm" (ngSubmit)="queryAccount()">
-      <div class="form-group mb-3">
-        <label for="queryEmail">Email</label>
-        <input
-          id="queryEmail"
-          class="form-control"
-          formControlName="email"
-          type="email"
-        />
+      <div class="row g-3">
+        <div class="col-md-9">
+          <div class="form-group ">
+            <label for="queryEmail">Email</label>
+            <input
+              id="queryEmail"
+              class="form-control"
+              formControlName="email"
+              type="email"
+            />
+          </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button
+            type="submit"
+            class="btn btn-info w-100"
+            [disabled]="queryForm.invalid"
+          >
+            Query
+          </button>
+        </div>
       </div>
-      <button type="submit" class="btn btn-info" [disabled]="queryForm.invalid">
-        Query
-      </button>
     </form>
 
     <div *ngIf="queriedAccount" class="mt-4">
@@ -291,13 +321,12 @@
       </p>
       <p><strong>Email:</strong> {{ queriedAccount.email }}</p>
     </div>
-    <div
-      *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty"
-      class="mt-4"
-    >
+    <div *ngIf="!queriedAccount && queryForm.valid && queryForm.dirty" class="mt-4">
       <p>No account found with this email.</p>
     </div>
   </div>
+</div>
+
 
   <h2 class="mb-4">All Accounts</h2>
   <div class="card p-4 mb-4">

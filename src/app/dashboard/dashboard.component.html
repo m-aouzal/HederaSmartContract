@@ -1,13 +1,31 @@
 <div class="container mt-5">
-  <div class="card mb-4">
-    <div class="card-header">
-      <h3 class="card-title">Token Balances</h3>
-    </div>
-    <div class="card-body">
-      <p><strong>Account ID:</strong> {{ accountId }}</p>
-      <p><strong>MPT Balance:</strong> {{ mptBalance }}</p>
-      <p><strong>MST Balance:</strong> {{ mstBalance }}</p>
-      <p><strong>Staked Amount:</strong> {{ stakes }}</p>
+  <div class="container mt-4">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Token Balances</h3>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered text-center">
+          <tbody>
+            <tr>
+              <th scope="row" class="font-weight-bold">Account ID</th>
+              <td class="font-weight-bold">{{ accountId }}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="font-weight-bold">MPT Balance</th>
+              <td class="font-weight-bold">{{ mptBalance }}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="font-weight-bold">MST Balance</th>
+              <td class="font-weight-bold">{{ mstBalance }}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="font-weight-bold">Staked Amount</th>
+              <td class="font-weight-bold">{{ stakes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
