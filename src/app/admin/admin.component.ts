@@ -46,7 +46,7 @@ export class AdminComponent implements OnInit {
   showForm = false;
   showTokenForm = false;
   showDeleteAccountForm = false;
-  showDeleteTokenForm = false;
+  
   showTransferForm = false; // Add show transfer form
   accounts: Account[] = [];
   tokens: Token[] = [];
@@ -426,13 +426,7 @@ export class AdminComponent implements OnInit {
     console.log(`Delete account confirmed for ID: ${accountId}`);
   }
 
-  confirmDeleteToken(tokenId: string) {
-    this.generateRandomWord();
-    this.deleteTokenId = tokenId;
-    this.showDeleteTokenForm = true;
-    this.deleteForm.reset();
-    console.log(`Delete token confirmed for ID: ${tokenId}`);
-  }
+
 
   deleteAccount() {
     if (this.validateSecurityWord(this.deleteForm.value.securityWord)) {
@@ -449,7 +443,7 @@ export class AdminComponent implements OnInit {
 
   cancelDelete() {
     this.showDeleteAccountForm = false;
-    this.showDeleteTokenForm = false;
+   
     console.log('Delete operation cancelled.');
   }
 

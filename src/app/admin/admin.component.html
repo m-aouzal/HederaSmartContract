@@ -303,8 +303,8 @@
           <th scope="col">Alias</th>
           <th scope="col">Account ID</th>
           <th scope="col">Account Private Key</th>
-          <th scope="col">Ether Address</th>
           <th scope="col">Email</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -341,7 +341,29 @@
         </tr>
       </tbody>
     </table>
+     <div *ngIf="showDeleteAccountForm" class="card p-4 mb-4">
+    <h2 class="mb-4">Confirm Deletion</h2>
+    <p>
+      Please repeat this word to confirm deletion:
+      <strong>{{ randomWord }}</strong>
+    </p>
+    <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
+      <div class="form-group mb-3">
+        <input
+          id="securityWord"
+          class="form-control"
+          formControlName="securityWord"
+          type="text"
+        />
+      </div>
+      <button type="submit" class="btn btn-danger">Confirm</button>
+      <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+        Cancel
+      </button>
+    </form>
   </div>
+  </div>
+  
 
   <div class="card p-4">
     <h2 class="mb-4">All Tokens</h2>
@@ -381,28 +403,5 @@
     </table>
   </div>
 
-  <div
-    *ngIf="showDeleteAccountForm || showDeleteTokenForm"
-    class="card p-4 mb-4"
-  >
-    <h2 class="mb-4">Confirm Deletion</h2>
-    <p>
-      Please repeat this word to confirm deletion:
-      <strong>{{ randomWord }}</strong>
-    </p>
-    <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
-      <div class="form-group mb-3">
-        <input
-          id="securityWord"
-          class="form-control"
-          formControlName="securityWord"
-          type="text"
-        />
-      </div>
-      <button type="submit" class="btn btn-danger">Confirm</button>
-      <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
-        Cancel
-      </button>
-    </form>
-  </div>
+ 
 </div>
