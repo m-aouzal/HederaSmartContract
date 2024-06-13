@@ -34,20 +34,20 @@ export class AdminComponent implements OnInit {
     private hederaService: HederaService,
     private dbService: DataBaseService,
     private router: Router
-  ) {} // Inject HederaService
+  ) {}
 
   accountsService = inject(DataBaseService);
   accountForm: FormGroup;
   tokenForm: FormGroup;
   queryForm: FormGroup;
   deleteForm: FormGroup;
-  transferForm: FormGroup; // Add transfer form
-  mintForm: FormGroup; // Add mint form
+  transferForm: FormGroup;
+  mintForm: FormGroup;
   showForm = false;
   showTokenForm = false;
   showDeleteAccountForm = false;
-  
-  showTransferForm = false; // Add show transfer form
+  showTransferForm = false;
+  showMintForm = false;
   accounts: Account[] = [];
   tokens: Token[] = [];
   queriedAccount: Account | null = null;
@@ -60,7 +60,7 @@ export class AdminComponent implements OnInit {
   mptTokenId: string = '';
   accountId: string = '';
   privateKey: string = '';
-  mintSpinner: boolean = false; // Add spinner flag
+  mintSpinner: boolean = false;
   transferSpinner: boolean = false;
   contractId: string = '0.0.4396021';
 
@@ -75,7 +75,7 @@ export class AdminComponent implements OnInit {
     console.log('AdminComponent initialized');
     this.loadAccounts();
     this.loadTokens();
-    this.getAccountDetailsByAlias('Owner'); // Fetch account details
+    this.getAccountDetailsByAlias('Owner');
 
     this.accountForm = this.fb.group(
       {
@@ -214,6 +214,7 @@ export class AdminComponent implements OnInit {
     console.log('Fetching token balances...');
     try {
       await this.getMstBalance();
+      await this.getMstBalance();
       await this.getMptBalance();
       console.log(
         `MST Balance: ${Math.floor(this.mstBalance)}, MPT Balance: ${Math.floor(
@@ -272,7 +273,7 @@ export class AdminComponent implements OnInit {
           amount
         );
 
-        await new Promise((resolve) => setTimeout(resolve, 3500));
+        await new Promise((resolve) => setTimeout(resolve, 4500));
 
         if (tokenType === 'MST') {
           await this.getMstBalance(); // Refresh MST balance
@@ -390,6 +391,10 @@ export class AdminComponent implements OnInit {
     this.showTransferForm = !this.showTransferForm;
     console.log(`Show transfer form toggled: ${this.showTransferForm}`);
   }
+  toggleMintForm() {
+    this.showMintForm = !this.showMintForm;
+    console.log(`Show transfer form toggled: ${this.showMintForm}`);
+  }
 
   queryAccount() {
     if (this.queryForm.valid) {
@@ -426,8 +431,6 @@ export class AdminComponent implements OnInit {
     console.log(`Delete account confirmed for ID: ${accountId}`);
   }
 
-
-
   deleteAccount() {
     if (this.validateSecurityWord(this.deleteForm.value.securityWord)) {
       this.accountsService.removeAccount(this.deleteAccountId).subscribe(() => {
@@ -443,7 +446,6 @@ export class AdminComponent implements OnInit {
 
   cancelDelete() {
     this.showDeleteAccountForm = false;
-   
     console.log('Delete operation cancelled.');
   }
 
