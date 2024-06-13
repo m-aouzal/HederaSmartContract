@@ -379,21 +379,29 @@ export class AdminComponent implements OnInit {
 
   toggleForm() {
     this.showForm = !this.showForm;
+    this.showTransferForm = false;
+    this.showMintForm = false;
     console.log(`Show form toggled: ${this.showForm}`);
   }
 
   toggleTokenForm() {
     this.showTokenForm = !this.showTokenForm;
+    this.showTransferForm = false;
+    this.showMintForm = false;
     console.log(`Show token form toggled: ${this.showTokenForm}`);
   }
 
   toggleTransferForm() {
     this.showTransferForm = !this.showTransferForm;
+    this.showForm = false;
+    this.showMintForm = false;
     console.log(`Show transfer form toggled: ${this.showTransferForm}`);
   }
   toggleMintForm() {
     this.showMintForm = !this.showMintForm;
-    console.log(`Show transfer form toggled: ${this.showMintForm}`);
+    this.showTransferForm = false;
+    this.showForm = false;
+    console.log(`Show mint form toggled: ${this.showMintForm}`);
   }
 
   queryAccount() {

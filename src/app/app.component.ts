@@ -5,6 +5,7 @@ import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -16,8 +17,14 @@ export class AppComponent implements OnInit {
   title = 'SmartContract';
   authService = inject(AuthService);
 
+  constructor(private router: Router) {}
+
   logout(): void {
     this.authService.logout().subscribe();
+  }
+
+  isActive(url: string): boolean {
+    return this.router.url === url;
   }
 
   ngOnInit() {
