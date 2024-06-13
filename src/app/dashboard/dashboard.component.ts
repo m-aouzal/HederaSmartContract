@@ -415,7 +415,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async sendTransaction() {
-    if (this.transactionAmount > this.mptBalance) {
+    if (this.transferForm.value.transferAmount > this.mptBalance) {
       alert(
         `Insufficient balance. Maximum transferable amount: ${this.mptBalance}`
       );
@@ -423,7 +423,9 @@ export class DashboardComponent implements OnInit {
     }
     this.sendSpinner = true; // Show spinner
     try {
-      let recipientAccountId = this.recipientAccountId;
+      let recipientAccountId = this.transferForm.value.recipientAccountId;
+      let transferAmount = this.transferForm.value.transferAmount;
+
       if (this.useAlias) {
         const favoriteAlias = this.transferForm.value.favoriteAlias;
         const favorite = this.favorites.find(
@@ -433,24 +435,26 @@ export class DashboardComponent implements OnInit {
           recipientAccountId = favorite.accountId;
         } else {
           alert('Selected alias does not exist.');
+          this.sendSpinner = false;
           return;
         }
       }
- const etherAddress = await this.hederaService.fetchEtherAddress(
-   this.recipientAccountId
- );
+      console.log('Recipient Account ID:', recipientAccountId);
+      console.log('Transfer Amount:', transferAmount);
+
+      const etherAddress = await this.hederaService.fetchEtherAddress(
+        recipientAccountId
+      );
       const receiptStatus = await this.hederaService.transferMptTokens(
         this.accountId,
         this.privateKey,
         this.contractId,
         etherAddress,
-        this.transactionAmount
+        transferAmount
       );
       await new Promise((resolve) => setTimeout(resolve, 3500));
       if (receiptStatus === 'SUCCESS') {
-        alert(
-          `Transaction of ${this.transactionAmount} MPT tokens successful.`
-        );
+        alert(`Transaction of ${transferAmount} MPT tokens successful.`);
       } else {
         alert(`Transaction failed. Status: ${receiptStatus}`);
       }
@@ -462,8 +466,9 @@ export class DashboardComponent implements OnInit {
       alert(`Error sending transaction. ${errorMessage}`);
     } finally {
       this.sendSpinner = false; // Hide spinner
-      this.recipientAccountId = ''; // Reset form values
-      this.transactionAmount = 0;
+      this.transferForm.reset(); // Reset form values
+      this.transferForm.get('useAlias')?.setValue(false);
+      this.transferForm.get('transferAmount')?.setValue(0);
     }
   }
 
