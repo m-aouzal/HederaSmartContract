@@ -15,8 +15,8 @@ import {
   getDocsFromServer,
 } from 'firebase/firestore';
 import { Observable, firstValueFrom, from } from 'rxjs';
-import { Account } from './Account';
-import { Token } from './Token';
+import { Account } from '../Interfaces/Account';
+import { Token } from '../Interfaces/Token';
 import { AuthService } from './auth.service';
 @Injectable({
   providedIn: 'root',

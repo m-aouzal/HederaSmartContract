@@ -10,8 +10,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Account } from '../services/Account';
-import { Token } from '../services/Token';
+import { Account } from '../Interfaces/Account';
+import { Token } from '../Interfaces/Token';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -75,7 +75,7 @@ export class AdminComponent implements OnInit {
     console.log('AdminComponent initialized');
     this.loadAccounts();
     this.loadTokens();
-    this.getAccountDetailsByAlias('Owner');
+    this.getAccountDetailsByAlias('admin');
 
     this.accountForm = this.fb.group(
       {

@@ -9,7 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { Observable, from } from 'rxjs';
 import { user } from 'rxfire/auth';
-import { UserInterface } from './user.interface';
+import { UserInterface } from '../Interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root',
