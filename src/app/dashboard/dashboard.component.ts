@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable, from } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { DataBaseService } from '../services/dataBase.service';
 import { HederaService } from '../services/hedera.service';
@@ -9,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MyFavorites } from '../Interfaces/MyFavorites';
 import { ReactiveFormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -34,16 +34,17 @@ export class DashboardComponent implements OnInit {
   stakeSpinner: boolean = false;
   unstakeSpinner: boolean = false;
   sendSpinner: boolean = false;
+  favoriteSpinner: boolean = false;
 
   showSendTokensForm: boolean = false;
   showStakeTokensForm: boolean = false;
   showUnstakeTokensForm: boolean = false;
   showClaimRewardsForm: boolean = false;
-
-  // New properties for adding favorite
-  favoriteForm: FormGroup;
+  showFavorites: boolean = false;
   showAddFavoriteForm: boolean = false;
-  favoriteSpinner: boolean = false;
+
+  favoriteForm: FormGroup;
+  favorites: MyFavorites[] = [];
 
   accountIdValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -62,6 +63,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.getUserDetails();
     this.initializeFavoriteForm();
+    this.loadFavorites();
   }
 
   initializeFavoriteForm() {
@@ -71,8 +73,13 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  toggleAddFavoriteForm() {
-    this.showAddFavoriteForm = !this.showAddFavoriteForm;
+  toggleForm(formType: string): void {
+    this.showSendTokensForm = formType === 'sendTokens';
+    this.showStakeTokensForm = formType === 'stakeTokens';
+    this.showUnstakeTokensForm = formType === 'unstakeTokens';
+    this.showClaimRewardsForm = formType === 'claimRewards';
+    this.showFavorites = formType === 'favorites';
+    this.showAddFavoriteForm = formType === 'addFavorite';
   }
 
   addFavorite() {
@@ -92,7 +99,8 @@ export class DashboardComponent implements OnInit {
           console.log('Favorite added with ID:', id);
           alert('Favorite added successfully.');
           this.favoriteForm.reset();
-          this.showAddFavoriteForm = false;
+          this.toggleForm('favorites'); // Switch to favorites view after adding
+          this.loadFavorites(); // Reload favorites after adding a new one
         },
         error: (err) => {
           console.error('Error adding favorite:', err);
@@ -146,11 +154,14 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  toggleForm(formType: string): void {
-    this.showSendTokensForm = formType === 'sendTokens';
-    this.showStakeTokensForm = formType === 'stakeTokens';
-    this.showUnstakeTokensForm = formType === 'unstakeTokens';
-    this.showClaimRewardsForm = formType === 'claimRewards';
+  loadFavorites() {
+    const user = this.authService.currentUserSig();
+    if (user && user.email) {
+      this.dbService.getMyFavorites(user.email).subscribe((favorites) => {
+        this.favorites = favorites;
+        console.log('Favorites loaded:', this.favorites);
+      });
+    }
   }
 
   async getBalances() {
@@ -399,6 +410,17 @@ export class DashboardComponent implements OnInit {
       this.recipientAccountId = ''; // Reset form values
       this.transactionAmount = 0;
     }
+  }
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        console.log('Copied to clipboard:', text);
+      },
+      (err) => {
+        console.error('Could not copy text: ', err);
+      }
+    );
   }
 
   logout() {

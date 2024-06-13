@@ -94,6 +94,16 @@ export class DataBaseService {
     return from(promise);
   }
 
+  getMyFavorites(email: string): Observable<MyFavorites[]> {
+    const q = query(this.favoritesCollection, where('registerer', '==', email));
+    const promise = getDocs(q).then((snapshot) => {
+      return snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as MyFavorites)
+      );
+    });
+    return from(promise);
+  }
+
   getAccountByEmail(email: string): Observable<Account[]> {
     const q = query(this.accounts, where('email', '==', email));
     const promise = getDocs(q).then((snapshot) => {
