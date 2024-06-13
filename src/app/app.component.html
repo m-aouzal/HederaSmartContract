@@ -1,11 +1,38 @@
-<nav class="navbar navbar-dark" style="background-color: #1b1f3b; font-size: 1.5rem;">
+<nav
+  class="navbar navbar-dark"
+  style="background-color: #1b1f3b; font-size: 1.5rem"
+>
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/">Token Management App</a>
+    <a class="navbar-brand" routerLink="/"> Reward Distribution App</a>
     <div class="d-flex ms-auto">
-      <a class="nav-item nav-link" *ngIf="!authService.getAuthStatus() && !isActive('/login')" routerLink="/login">Login</a>
-      <a class="nav-item nav-link" *ngIf="authService.getAuthStatus() && !isActive('/dashboard')" routerLink="/dashboard">Dashboard</a>
-      <a class="nav-item nav-link" *ngIf="authService.getAuthStatus() && authService.isAdmin() && !isActive('/admin')" routerLink="/admin">Admin</a>
-      <a class="nav-item nav-link" *ngIf="authService.getAuthStatus()" (click)="logout()">Logout</a>
+      <a
+        class="nav-item nav-link"
+        *ngIf="!authService.getAuthStatus() && !isActive('/login')"
+        routerLink="/login"
+        >Login</a
+      >
+      <a
+        class="nav-item nav-link"
+        *ngIf="authService.getAuthStatus() && !isActive('/dashboard')"
+        routerLink="/dashboard"
+        >Dashboard</a
+      >
+      <a
+        class="nav-item nav-link"
+        *ngIf="
+          authService.getAuthStatus() &&
+          authService.isAdmin() &&
+          !isActive('/admin')
+        "
+        routerLink="/admin"
+        >Admin</a
+      >
+      <a
+        class="nav-item nav-link"
+        *ngIf="authService.getAuthStatus()"
+        (click)="logout()"
+        >Logout</a
+      >
     </div>
   </div>
 </nav>
