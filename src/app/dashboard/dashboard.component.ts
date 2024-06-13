@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Observable, from } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { DataBaseService } from '../services/dataBase.service';
 import { HederaService } from '../services/hedera.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-
+import { MyFavorites } from '../Interfaces/MyFavorites';
+import { ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
@@ -37,6 +40,11 @@ export class DashboardComponent implements OnInit {
   showUnstakeTokensForm: boolean = false;
   showClaimRewardsForm: boolean = false;
 
+  // New properties for adding favorite
+  favoriteForm: FormGroup;
+  showAddFavoriteForm: boolean = false;
+  favoriteSpinner: boolean = false;
+
   accountIdValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const valid = /^0\.0\.[0-9]{7}$/.test(control.value);
@@ -47,11 +55,54 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private hederaService: HederaService,
-    private dbService: DataBaseService
+    private dbService: DataBaseService,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit() {
     this.getUserDetails();
+    this.initializeFavoriteForm();
+  }
+
+  initializeFavoriteForm() {
+    this.favoriteForm = this.fb.group({
+      alias: ['', Validators.required],
+      accountId: ['', [Validators.required, this.accountIdValidator()]],
+    });
+  }
+
+  toggleAddFavoriteForm() {
+    this.showAddFavoriteForm = !this.showAddFavoriteForm;
+  }
+
+  addFavorite() {
+    if (this.favoriteForm.valid) {
+      const user = this.authService.currentUserSig();
+      const favorite: MyFavorites = {
+        id: '',
+        registerer: user.email,
+        accountId: this.favoriteForm.value.accountId,
+        alias: this.favoriteForm.value.alias,
+      };
+
+      this.favoriteSpinner = true;
+
+      this.dbService.addFavorite(favorite).subscribe({
+        next: (id) => {
+          console.log('Favorite added with ID:', id);
+          alert('Favorite added successfully.');
+          this.favoriteForm.reset();
+          this.showAddFavoriteForm = false;
+        },
+        error: (err) => {
+          console.error('Error adding favorite:', err);
+          alert('Error adding favorite.');
+        },
+        complete: () => {
+          this.favoriteSpinner = false;
+        },
+      });
+    }
   }
 
   async getUserDetails() {

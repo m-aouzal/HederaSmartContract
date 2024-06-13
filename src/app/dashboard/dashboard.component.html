@@ -50,8 +50,46 @@
     >
       Claim Rewards
     </button>
+    <button class="btn btn-warning mx-2" (click)="toggleAddFavoriteForm()">
+      Add Favorite
+    </button>
   </div>
-
+  <div *ngIf="showAddFavoriteForm" class="card p-4 mb-4">
+    <h3 class="card-title">Add Favorite</h3>
+    <form [formGroup]="favoriteForm" (ngSubmit)="addFavorite()">
+      <div class="form-group mb-3">
+        <label for="alias">Alias</label>
+        <input
+          type="text"
+          id="alias"
+          class="form-control"
+          formControlName="alias"
+          required
+        />
+      </div>
+      <div class="form-group mb-3">
+        <label for="accountId">Account ID</label>
+        <input
+          type="text"
+          id="accountId"
+          class="form-control"
+          formControlName="accountId"
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="favoriteForm.invalid"
+      >
+        Add Favorite
+        <span
+          *ngIf="favoriteSpinner"
+          class="spinner-border spinner-border-sm ms-2"
+        ></span>
+      </button>
+    </form>
+  </div>
   <div *ngIf="showSendTokensForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Send Tokens</h3>
