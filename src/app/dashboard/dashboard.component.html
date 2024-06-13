@@ -1,89 +1,142 @@
-<section class="balances">
-  <h3>Token Balances</h3>
-  <p><strong>Account ID:</strong> {{ accountId }}</p>
-  <p>MPT Balance: {{ mptBalance }}</p>
-  <p>MST Balance: {{ mstBalance }}</p>
-  <p>Staked Amount: {{ stakes }}</p>
-</section>
-
-<section class="send-tokens">
-  <h3>Send Tokens</h3>
-  <form (ngSubmit)="sendTransaction()">
-    <div class="form-group">
-      <label for="recipientAccountId">Recipient Account ID</label>
-      <input
-        type="text"
-        id="recipientAccountId"
-        [(ngModel)]="recipientAccountId"
-        name="recipientAccountId"
-        required
-      />
+<div class="container mt-5">
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title">Token Balances</h3>
     </div>
-    <div class="form-group">
-      <label for="transactionAmount">Amount</label>
-      <input
-        type="number"
-        id="transactionAmount"
-        [(ngModel)]="transactionAmount"
-        name="transactionAmount"
-        required
-      />
+    <div class="card-body">
+      <p><strong>Account ID:</strong> {{ accountId }}</p>
+      <p><strong>MPT Balance:</strong> {{ mptBalance }}</p>
+      <p><strong>MST Balance:</strong> {{ mstBalance }}</p>
+      <p><strong>Staked Amount:</strong> {{ stakes }}</p>
     </div>
-    <button type="submit" [disabled]="sendSpinner">
-      Send
-      <span *ngIf="sendSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-    </button>
-  </form>
-</section>
+  </div>
 
-<section class="stake-tokens">
-  <h3>Stake Tokens</h3>
-  <form (ngSubmit)="stakeTokens()">
-    <div class="form-group">
-      <label for="stakeAmount">Amount</label>
-      <input
-        type="number"
-        id="stakeAmount"
-        [(ngModel)]="stakeAmount"
-        name="stakeAmount"
-        required
-      />
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title">Send Tokens</h3>
     </div>
-    <button type="submit" [disabled]="stakeSpinner">
-      Stake
-      <span *ngIf="stakeSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-    </button>
-  </form>
-</section>
-
-<section class="unstake-tokens" *ngIf="stakes > 0">
-  <h3>Unstake Tokens</h3>
-  <form (ngSubmit)="unstakeTokens()">
-    <div class="form-group">
-      <label for="unstakeAmount">Amount</label>
-      <input
-        type="number"
-        id="unstakeAmount"
-        [(ngModel)]="unstakeAmount"
-        name="unstakeAmount"
-        required
-      />
+    <div class="card-body">
+      <form (ngSubmit)="sendTransaction()">
+        <div class="form-group mb-3">
+          <label for="recipientAccountId">Recipient Account ID</label>
+          <input
+            type="text"
+            id="recipientAccountId"
+            class="form-control"
+            [(ngModel)]="recipientAccountId"
+            name="recipientAccountId"
+            required
+          />
+        </div>
+        <div class="form-group mb-3">
+          <label for="transactionAmount">Amount</label>
+          <input
+            type="number"
+            id="transactionAmount"
+            class="form-control"
+            [(ngModel)]="transactionAmount"
+            name="transactionAmount"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="sendSpinner">
+          Send
+          <span
+            *ngIf="sendSpinner"
+            class="spinner-border spinner-border-sm ms-2"
+          ></span>
+        </button>
+      </form>
     </div>
-    <button type="submit" [disabled]="unstakeSpinner">
-      Unstake
-      <span *ngIf="unstakeSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-    </button>
-  </form>
-  <button (click)="unstakeAllTokens()" [disabled]="unstakeSpinner">
-    Unstake All
-    <span *ngIf="unstakeSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-  </button>
-</section>
+  </div>
 
-<section class="claim-rewards" *ngIf="stakes > 0">
-  <h3>Claim Rewards</h3>
-  <button (click)="claimRewards()" [disabled]="claimSpinner">
-    Claim Rewards
-    <span *ngIf="claimSpinner" class="spinner-border spinner-border-sm ms-2"></span>
-  </button>
-</section>
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title">Stake Tokens</h3>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="stakeTokens()">
+        <div class="form-group mb-3">
+          <label for="stakeAmount">Amount</label>
+          <input
+            type="number"
+            id="stakeAmount"
+            class="form-control"
+            [(ngModel)]="stakeAmount"
+            name="stakeAmount"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-success" [disabled]="stakeSpinner">
+          Stake
+          <span
+            *ngIf="stakeSpinner"
+            class="spinner-border spinner-border-sm ms-2"
+          ></span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-4" *ngIf="stakes > 0">
+    <div class="card-header">
+      <h3 class="card-title">Unstake Tokens</h3>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="unstakeTokens()">
+        <div class="form-group mb-3">
+          <label for="unstakeAmount">Amount</label>
+          <input
+            type="number"
+            id="unstakeAmount"
+            class="form-control"
+            [(ngModel)]="unstakeAmount"
+            name="unstakeAmount"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-danger"
+          [disabled]="unstakeSpinner"
+        >
+          Unstake
+          <span
+            *ngIf="unstakeSpinner"
+            class="spinner-border spinner-border-sm ms-2"
+          ></span>
+        </button>
+      </form>
+      <button
+        class="btn btn-warning mt-3"
+        (click)="unstakeAllTokens()"
+        [disabled]="unstakeSpinner"
+      >
+        Unstake All
+        <span
+          *ngIf="unstakeSpinner"
+          class="spinner-border spinner-border-sm ms-2"
+        ></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card mb-4" *ngIf="stakes > 0">
+    <div class="card-header">
+      <h3 class="card-title">Claim Rewards</h3>
+    </div>
+    <div class="card-body">
+      <button
+        class="btn btn-info"
+        (click)="claimRewards()"
+        [disabled]="claimSpinner"
+      >
+        Claim Rewards
+        <span
+          *ngIf="claimSpinner"
+          class="spinner-border spinner-border-sm ms-2"
+        ></span>
+      </button>
+    </div>
+  </div>
+</div>
