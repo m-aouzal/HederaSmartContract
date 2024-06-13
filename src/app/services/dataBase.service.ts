@@ -119,6 +119,11 @@ export class DataBaseService {
     const promise = deleteDoc(docRef);
     return from(promise);
   }
+  removeFavorite(favoriteId: string): Observable<void> {
+    const docRef = doc(this.fireStore, `favorites/${favoriteId}`);
+    const promise = deleteDoc(docRef);
+    return from(promise);
+  }
 
   getTokens(): Observable<Token[]> {
     return collectionData(this.tokens, { idField: 'id' }) as Observable<

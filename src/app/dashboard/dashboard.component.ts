@@ -44,7 +44,9 @@ export class DashboardComponent implements OnInit {
   showAddFavoriteForm: boolean = false;
 
   favoriteForm: FormGroup;
+  transferForm: FormGroup;
   favorites: MyFavorites[] = [];
+  useAlias: boolean = false;
 
   accountIdValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -64,12 +66,40 @@ export class DashboardComponent implements OnInit {
     this.getUserDetails();
     this.initializeFavoriteForm();
     this.loadFavorites();
+    this.initializeTransferForm();
   }
 
   initializeFavoriteForm() {
     this.favoriteForm = this.fb.group({
       alias: ['', Validators.required],
       accountId: ['', [Validators.required, this.accountIdValidator()]],
+    });
+  }
+
+  initializeTransferForm() {
+    this.transferForm = this.fb.group({
+      useAlias: [false],
+      recipientAccountId: [
+        '',
+        [Validators.required, this.accountIdValidator()],
+      ],
+      transferAmount: [0, [Validators.required, Validators.min(1)]],
+      tokenType: ['MST', Validators.required],
+      favoriteAlias: [''],
+    });
+
+    this.transferForm.get('useAlias')?.valueChanges.subscribe((useAlias) => {
+      if (useAlias) {
+        this.transferForm.get('recipientAccountId')?.disable();
+        this.transferForm
+          .get('favoriteAlias')
+          ?.setValidators([Validators.required]);
+      } else {
+        this.transferForm.get('recipientAccountId')?.enable();
+        this.transferForm.get('favoriteAlias')?.clearValidators();
+      }
+      this.transferForm.get('favoriteAlias')?.updateValueAndValidity();
+      this.transferForm.get('recipientAccountId')?.updateValueAndValidity();
     });
   }
 
@@ -111,6 +141,19 @@ export class DashboardComponent implements OnInit {
         },
       });
     }
+  }
+
+  removeFavorite(favoriteId: string) {
+    this.dbService.removeFavorite(favoriteId).subscribe({
+      next: () => {
+        console.log('Favorite removed:', favoriteId);
+        this.loadFavorites();
+      },
+      error: (err) => {
+        console.error('Error removing favorite:', err);
+        alert('Error removing favorite.');
+      },
+    });
   }
 
   async getUserDetails() {
@@ -380,10 +423,22 @@ export class DashboardComponent implements OnInit {
     }
     this.sendSpinner = true; // Show spinner
     try {
-      const etherAddress = await this.hederaService.fetchEtherAddress(
-        this.recipientAccountId
-      );
-      console.log(`Fetched Ether address: ${etherAddress}`);
+      let recipientAccountId = this.recipientAccountId;
+      if (this.useAlias) {
+        const favoriteAlias = this.transferForm.value.favoriteAlias;
+        const favorite = this.favorites.find(
+          (fav) => fav.alias === favoriteAlias
+        );
+        if (favorite) {
+          recipientAccountId = favorite.accountId;
+        } else {
+          alert('Selected alias does not exist.');
+          return;
+        }
+      }
+ const etherAddress = await this.hederaService.fetchEtherAddress(
+   this.recipientAccountId
+ );
       const receiptStatus = await this.hederaService.transferMptTokens(
         this.accountId,
         this.privateKey,

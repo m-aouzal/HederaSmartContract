@@ -100,26 +100,35 @@
     </div>
   </div>
 
-<div *ngIf="showFavorites" class="container mt-5">
-  <div class="card shadow-sm p-4 mb-4">
+  <!-- My Favorites List -->
+  <div *ngIf="showFavorites" class="card p-4 mb-4">
     <div class="table-responsive">
       <table class="table table-striped table-hover">
-        <thead class="table-dark">
+        <thead>
           <tr>
             <th scope="col">Alias</th>
             <th scope="col">Account ID</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let favorite of favorites">
-            <td class="align-middle">{{ favorite.alias }}</td>
-            <td class="align-middle">
+            <td>{{ favorite.alias }}</td>
+            <td>
               {{ favorite.accountId }}
-              <button style="background-color: black;"
+              <button
                 class="btn btn-outline-secondary btn-sm ms-2"
                 (click)="copyToClipboard(favorite.accountId)"
               >
                 Copy
+              </button>
+            </td>
+            <td>
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="removeFavorite(favorite.id)"
+              >
+                Delete
               </button>
             </td>
           </tr>
@@ -127,48 +136,86 @@
       </table>
     </div>
   </div>
-</div>
 
+  <!-- Send Tokens Form -->
+  <div *ngIf="showSendTokensForm" class="container mt-5">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Send Tokens</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="transferForm" (ngSubmit)="sendTransaction()">
+          <div class="form-group form-check mb-4 center">
+            <div class="form-check form-switch text-center">
+              <input
+              style="height: 10px; width: 2rem;"
+                class="form-check-input"
+                type="checkbox"
+                formControlName="useAlias"
+                id="useAlias"
+                [(ngModel)]="useAlias"
+              />
+              <label class="form-check-label mx-4 ms-2 h3" for="useAlias">
+                Use Alias
+              </label>
+            </div>
+          </div>
 
-  <div *ngIf="showSendTokensForm" class="card mb-4">
-    <div class="card-header">
-      <h3 class="card-title">Send Tokens</h3>
-    </div>
-    <div class="card-body">
-      <form (ngSubmit)="sendTransaction()">
-        <div class="form-group mb-3">
-          <label for="recipientAccountId">Recipient Account ID</label>
-          <input
-            type="text"
-            id="recipientAccountId"
-            class="form-control"
-            [(ngModel)]="recipientAccountId"
-            name="recipientAccountId"
-            required
-          />
-        </div>
-        <div class="form-group mb-3">
-          <label for="transactionAmount">Amount</label>
-          <input
-            type="number"
-            id="transactionAmount"
-            class="form-control"
-            [(ngModel)]="transactionAmount"
-            name="transactionAmount"
-            required
-          />
-        </div>
-        <button type="submit" class="btn btn-primary" [disabled]="sendSpinner">
-          Send
-          <span
-            *ngIf="sendSpinner"
-            class="spinner-border spinner-border-sm ms-2"
-          ></span>
-        </button>
-      </form>
+          <div class="form-group mb-4" *ngIf="!useAlias">
+            <label for="recipientAccountId" class="form-label"
+              >Recipient Account ID</label
+            >
+            <input
+              type="text"
+              id="recipientAccountId"
+              class="form-control form-control-lg"
+              formControlName="recipientAccountId"
+              required
+            />
+          </div>
+          <div class="form-group mb-4" *ngIf="useAlias">
+            <label for="favoriteAlias" class="form-label">Select Alias</label>
+            <select
+              id="favoriteAlias"
+              class="form-select form-select-lg"
+              formControlName="favoriteAlias"
+              required
+            >
+              <option
+                *ngFor="let favorite of favorites"
+                [value]="favorite.alias"
+              >
+                {{ favorite.alias }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group mb-4">
+            <label for="transactionAmount" class="form-label">Amount</label>
+            <input
+              type="number"
+              id="transactionAmount"
+              class="form-control form-control-lg"
+              formControlName="transferAmount"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg w-100"
+            [disabled]="sendSpinner"
+          >
+            Send
+            <span
+              *ngIf="sendSpinner"
+              class="spinner-border spinner-border-sm ms-2"
+            ></span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
+  <!-- Stake Tokens Form -->
   <div *ngIf="showStakeTokensForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Stake Tokens</h3>
@@ -197,6 +244,7 @@
     </div>
   </div>
 
+  <!-- Unstake Tokens Form -->
   <div *ngIf="showUnstakeTokensForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Unstake Tokens</h3>
@@ -240,6 +288,7 @@
     </div>
   </div>
 
+  <!-- Claim Rewards Form -->
   <div *ngIf="showClaimRewardsForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Claim Rewards</h3>
