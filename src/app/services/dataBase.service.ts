@@ -14,10 +14,12 @@ import {
   getDocsFromCache,
   getDocsFromServer,
 } from 'firebase/firestore';
-import { Observable, firstValueFrom, from } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { Account } from '../Interfaces/Account';
 import { Token } from '../Interfaces/Token';
+import { MyFavorites } from '../Interfaces/MyFavorites';
 import { AuthService } from './auth.service';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,6 +29,7 @@ export class DataBaseService {
   authService = inject(AuthService);
   accounts = collection(this.fireStore, 'accounts');
   tokens = collection(this.fireStore, 'tokens');
+  favoritesCollection = collection(this.fireStore, 'favorites');
 
   getAccounts(): Observable<Account[]> {
     return collectionData(this.accounts, { idField: 'id' }) as Observable<
@@ -63,6 +66,29 @@ export class DataBaseService {
             reject(err);
           },
         });
+    });
+
+    return from(promise);
+  }
+
+  addFavorite(favorite: MyFavorites): Observable<string> {
+    const favoriteToAdd = {
+      registerer: favorite.registerer,
+      accountId: favorite.accountId,
+      alias: favorite.alias,
+    };
+
+    const promise = new Promise<string>((resolve, reject) => {
+      addDoc(this.favoritesCollection, favoriteToAdd).then(
+        (response) => {
+          console.log('Favorite added with ID:', response.id);
+          resolve(response.id);
+        },
+        (err) => {
+          console.error('Error adding favorite to database:', err);
+          reject(err);
+        }
+      );
     });
 
     return from(promise);
