@@ -14,7 +14,6 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-  // Existing properties
   mstBalance: number = 0;
   mptBalance: number = 0;
   stakes: number = 0;
@@ -32,6 +31,11 @@ export class DashboardComponent implements OnInit {
   stakeSpinner: boolean = false;
   unstakeSpinner: boolean = false;
   sendSpinner: boolean = false;
+
+  showSendTokensForm: boolean = false;
+  showStakeTokensForm: boolean = false;
+  showUnstakeTokensForm: boolean = false;
+  showClaimRewardsForm: boolean = false;
 
   accountIdValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -91,6 +95,13 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  toggleForm(formType: string): void {
+    this.showSendTokensForm = formType === 'sendTokens';
+    this.showStakeTokensForm = formType === 'stakeTokens';
+    this.showUnstakeTokensForm = formType === 'unstakeTokens';
+    this.showClaimRewardsForm = formType === 'claimRewards';
+  }
+
   async getBalances() {
     try {
       this.mptBalance =
@@ -98,16 +109,20 @@ export class DashboardComponent implements OnInit {
           this.accountId,
           this.mptTokenId
         )) || 0;
-      this.mstBalance =Math.floor(
-        (await this.hederaService.getTokenBalance(
-          this.accountId,
-          this.mstTokenId
-        ))) || 0;
-      this.mptBalance =Math.floor(
-        (await this.hederaService.getTokenBalance(
-          this.accountId,
-          this.mptTokenId
-        ))) || 0;
+      this.mstBalance =
+        Math.floor(
+          await this.hederaService.getTokenBalance(
+            this.accountId,
+            this.mstTokenId
+          )
+        ) || 0;
+      this.mptBalance =
+        Math.floor(
+          await this.hederaService.getTokenBalance(
+            this.accountId,
+            this.mptTokenId
+          )
+        ) || 0;
       console.log(
         `MST Balance: ${this.mstBalance}, MPT Balance: ${this.mptBalance}`
       );

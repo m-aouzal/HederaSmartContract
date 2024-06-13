@@ -29,7 +29,30 @@
     </div>
   </div>
 
-  <div class="card mb-4">
+  <div class="d-flex justify-content-center mb-4">
+    <button class="btn btn-primary mx-2" (click)="toggleForm('sendTokens')">
+      Send Tokens
+    </button>
+    <button class="btn btn-success mx-2" (click)="toggleForm('stakeTokens')">
+      Stake Tokens
+    </button>
+    <button
+      *ngIf="stakes > 0"
+      class="btn btn-danger mx-2"
+      (click)="toggleForm('unstakeTokens')"
+    >
+      Unstake Tokens
+    </button>
+    <button
+      *ngIf="stakes > 0"
+      class="btn btn-info mx-2"
+      (click)="toggleForm('claimRewards')"
+    >
+      Claim Rewards
+    </button>
+  </div>
+
+  <div *ngIf="showSendTokensForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Send Tokens</h3>
     </div>
@@ -68,7 +91,7 @@
     </div>
   </div>
 
-  <div class="card mb-4">
+  <div *ngIf="showStakeTokensForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Stake Tokens</h3>
     </div>
@@ -96,7 +119,7 @@
     </div>
   </div>
 
-  <div class="card mb-4" *ngIf="stakes > 0">
+  <div *ngIf="showUnstakeTokensForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Unstake Tokens</h3>
     </div>
@@ -139,7 +162,7 @@
     </div>
   </div>
 
-  <div class="card mb-4" *ngIf="stakes > 0">
+  <div *ngIf="showClaimRewardsForm" class="card mb-4">
     <div class="card-header">
       <h3 class="card-title">Claim Rewards</h3>
     </div>
