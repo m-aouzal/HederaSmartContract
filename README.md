@@ -25,10 +25,12 @@ The Admin Dashboard is built with Angular and Firebase. It allows admins to mana
 
 - **Hedera SDK**: Used for interacting with the Hedera network and performing token operations.
 - **Hedera Token Service (HTS)**: Used within the smart contract to manage token transfers and staking functionalities.
+- **Angular**: Used for building the front-end of the application.
+- **Firebase**: Used for real-time database and authentication.
 
 ### Login Credentials
 
-To access the Admin Dashboard, use the following credentials:
+To try out our application, use the following credentials:
 
 - **Admin**
   - Email: `admin@hedera.com`
@@ -44,6 +46,9 @@ To access the Admin Dashboard, use the following credentials:
   - User 3
     - Email: `user3@hedera.com`
     - Password: `hedera3`
+
+You can access the application at [https://hederarewarddistribution.web.app/login](https://hederarewarddistribution.web.app/login)
+
 
 ## Project Steps
 
