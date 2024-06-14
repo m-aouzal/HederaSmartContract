@@ -1,6 +1,5 @@
-# Hedera Reward Distribution DApp
-
-This project implements a decentralized application (DApp) for managing reward distribution using the Hedera Token Service (HTS). It involves staking, transferring, and claiming rewards using two tokens: Mintable Staking Token (MST) and Mintable Payment Token (MPT). The smart contract handles the distribution of rewards in a fair and transparent manner.
+# Hedera Reward Distribution 
+This project implements a  application  for managing reward distribution using the Hedera Token Service (HTS). It involves staking, transferring, and claiming rewards using two tokens: Mintable Staking Token (MST) and Mintable Payment Token (MPT). The smart contract handles the distribution of rewards in a fair and transparent manner.
 
 ## Admin Dashboard
 
