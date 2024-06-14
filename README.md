@@ -1,6 +1,6 @@
-# Hedera Reward Distribution
+ Hedera Reward Distribution
 
-This project implements a application for managing reward distribution using the Hedera Token Service (HTS). It involves staking, transferring, and claiming rewards using two tokens: Mintable Staking Token (MST) and Mintable Payment Token (MPT). The smart contract handles the distribution of rewards in a fair and transparent manner.
+This project implements an application for managing reward distribution using the Hedera Token Service (HTS). It involves staking, transferring, and claiming rewards using two tokens: Mintable Staking Token (MST) and Mintable Payment Token (MPT). The smart contract handles the distribution of rewards in a fair and transparent manner.
 
 ## Admin Dashboard
 
@@ -15,7 +15,11 @@ The Admin Dashboard is built with Angular and Firebase. It allows admins to mana
 - **Claiming Rewards**: Users can claim their accrued rewards based on their staked MST tokens.
 - **Unstaking MST**: Users can unstake their MST tokens and withdraw their staked amount.
 - **Admin Operations**: Admins can manage token balances, mint new tokens, oversee the reward distribution process, and handle account creation for users who will be connected to a wallet.
-- **Access Control**: The delete function is blocked for fixed accounts and tokens to prevent unauthorized modifications. This is vital to the application to maintain its integrity.
+- **Access Control**: The delete function is blocked for four fixed accounts to prevent unauthorized modifications. This is vital to the application to maintain its integrity. The specific accounts that cannot be deleted are:
+  - `DJO0nIlR1DyydwYhB5Xy`
+  - `SlZx5gHcsz9eCCEdA6nc`
+  - `oMKQR1mhQw1DJCJfacN8`
+  - `sb9uyt5VVkOBa7OYXBih`
 
 ### Technologies Used
 
@@ -27,7 +31,6 @@ The Admin Dashboard is built with Angular and Firebase. It allows admins to mana
 To access the Admin Dashboard, use the following credentials:
 
 - **Admin**
-
   - Email: `admin@hedera.com`
   - Password: `hedera`
 
@@ -70,7 +73,6 @@ After deploying the contract, it is crucial to allow the contract to manage user
 We developed two main interfaces: an admin panel and a user dashboard.
 
 - **Admin Panel**:
-
   - The admin can add accounts, create tokens, and transfer MST and MPT tokens to users for testing.
   - We used Firebase for the backend and deployment of our application. The admin handles account creation, a task typically managed by wallets.
 
