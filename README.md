@@ -92,7 +92,7 @@ For users, the dashboard offers a "Add to Favorites" feature. Users can associat
 
 When a user performs a staking or reward claiming transaction, there is a necessary delay for confirmation on the network. On Hedera, this delay is short, taking only 3 to 5 seconds to achieve transaction finality, unlike Ethereum, which can take 10 to 15 minutes. After each transaction, we introduce a 5-second wait before checking the new balance, demonstrating the speed and efficiency of Hedera Hashgraph.
 
-## Getting
+## Getting Started
 
 The contract exists in the contracts folder. You will find the following files:
 
@@ -112,26 +112,26 @@ RewardDistribution.sol
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.7.
 
-## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Instructions for Setting Up the Application
 
-## Code scaffolding
+1. **Install Dependencies**: Run the following command to install the necessary dependencies for the project:
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+   ```bash
+   npm install
+   ```
 
-## Build
+2. **Install Hashgraph SDK**: Next, install the Hashgraph SDK with the command:
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+   ```bash
+   npm install --save @hashgraph/sdk
+   ```
 
-## Running unit tests
+3. **Run the Development Server**: Finally, start the development server by executing:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+   ```bash
+   ng serve
+   ```
 
-## Running end-to-end tests
+4. **Access the Application** You can access the application directly via the web at https://hederarewarddistribution.web.app/ or open your web browser and navigate to http://localhost:4200/. The application will automatically reload if you change any of the source files.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
